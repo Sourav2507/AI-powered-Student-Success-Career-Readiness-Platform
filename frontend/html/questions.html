@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='static/logo-transparent-png.png') }}">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Mentora Quiz</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4913ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#151022",
+                        "text-light": "#1d2333",
+                        "text-light-secondary": "#5c6271",
+                        "teal-primary": "#14b8a6",
+                        "teal-primary-hover": "#0d9488",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                    boxShadow: {
+                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-background-light font-display text-text-light">
+    <div class="flex h-screen w-full flex-col">
+        <header
+            class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 bg-white px-4 sm:px-10 py-3 shadow-soft z-10">
+            <div class="flex items-center gap-4 text-text-light">
+                <div class="text-primary">
+                    <img src="{{ url_for('static', filename='static/logo-transparent-png.png') }}" alt="Mentora Logo"
+                        class="w-10 h-10 object-contain">
+                </div>
+                <h2 class="text-text-light text-lg font-bold leading-tight tracking-[-0.015em]">Mentora
+                </h2>
+            </div>
+            <div class="flex items-center gap-4">
+                <div
+                    class="flex items-center gap-2 rounded-full bg-gray-100 px-4 py-1.5 text-sm font-medium text-text-light-secondary">
+                    <span class="material-symbols-outlined text-base">timer</span>
+                    <span id="timerDisplay">10:00 remaining</span>
+                </div>
+                <button
+                    class="flex items-center justify-center size-10 rounded-full hover:bg-gray-100 transition-colors">
+                    <span class="material-symbols-outlined text-text-light-secondary">more_vert</span>
+                </button>
+            </div>
+        </header>
+        <main class="flex-1 overflow-y-auto px-4 pt-1 pb-8 sm:px-6 lg:px-8 flex justify-center">
+
+            <div class="w-full max-w-3xl mt-6">
+
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span id="questionNumber" class="text-sm font-medium text-text-light-secondary">
+                            Attempted 0 of {{ questions|length }}
+                        </span>
+
+                        <span id="progressText" class="text-sm font-medium text-text-light">
+                            0% Complete
+                        </span>
+
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div id="progressBar" class="bg-teal-primary h-2 rounded-full" style="width: 0%"></div>
+                    </div>
+
+                </div>
+
+                <form action="{{ url_for('user.submit_exam') }}" method="POST">
+                    {% for i, q in questions %}
+                    <div class="rounded-xl bg-white my-2 p-6 shadow-soft border border-gray-100 space-y-6">
+
+                        <p class="text-sm font-semibold text-teal-primary">Multiple Choice Question</p>
+                        <h1 class="text-2xl font-bold">{{ q.question }}</h1>
+
+                        {% for key, value in q.options.items() %}
+                        <label
+                            class="flex items-center gap-4 rounded-lg border border-gray-200 p-4 cursor-pointer hover:border-teal-primary">
+
+                            <!-- Store A/B/C/D instead of full text -->
+                            <input class="form-radio size-5 text-teal-primary" name="q{{ i }}" type="radio"
+                                value="{{ key }}">
+
+                            <!-- Show readable text -->
+                            <span class="text-base font-medium">{{ value }}</span>
+                        </label>
+                        {% endfor %}
+
+
+                    </div>
+                    {% endfor %}
+
+                    <button type="submit"
+                        class="w-full bg-teal-primary text-white py-3 rounded-lg text-lg font-semibold mt-6">
+                        Submit Exam
+                    </button>
+                </form>
+
+
+            </div>
+        </main>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const total = {{ questions|length }};
+        const progressText = document.getElementById("progressText");
+        const questionNumber = document.getElementById("questionNumber");
+        const progressBar = document.getElementById("progressBar");
+
+        function updateProgress() {
+            const answered = new Set(
+                [...document.querySelectorAll("input[type=radio]:checked")]
+                    .map(r => r.name)
+            ).size;
+
+            const percent = Math.round((answered / total) * 100);
+
+            // Correct text format
+            questionNumber.textContent = `Attempted ${answered} of ${total}`;
+            progressText.textContent = `${percent}% Complete`;
+            progressBar.style.width = percent + "%";
+        }
+
+
+        // Listen for answer selection
+        document.querySelectorAll("input[type=radio]").forEach(radio => {
+            radio.addEventListener("change", updateProgress);
+        });
+
+});
+        let timeLeft = 10 * 60; // 10 minutes in seconds
+        const timerDisplay = document.getElementById("timerDisplay");
+
+        function updateTimer() {
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+
+            timerDisplay.textContent =
+                `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} remaining`;
+
+            if (timeLeft <= 0) {
+                document.querySelector("form").submit(); // Auto-submit exam
+                return;
+            }
+
+            timeLeft--;
+            setTimeout(updateTimer, 1000);
+        }
+
+        updateTimer();
+    </script>
+
+
+</body>
+
+</html>

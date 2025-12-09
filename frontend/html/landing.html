@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='static/logo-transparent-png.png') }}">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Mentora Landing Page</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4913ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#151022",
+                        "text-light": "#1d2333",
+                        "text-light-secondary": "#5c6271",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                    boxShadow: {
+                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-background-light font-display">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            <div class="flex flex-1 justify-center px-4 sm:px-8 md:px-12 lg:px-24 py-5">
+                <div class="layout-content-container flex flex-col w-full max-w-7xl flex-1">
+                    <header
+                        class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 px-4 sm:px-10 py-3">
+                        <div class="flex items-center gap-4 text-text-light">
+                            <div class="text-primary">
+                                <img src="{{ url_for('static', filename='static/logo-transparent-png.png') }}"
+                                    alt="Mentora Logo" class="w-20 h-20 object-contain">
+                            </div>
+
+                            <h2 class="text-text-light text-lg font-bold leading-tight tracking-[-0.015em]">Mentora</h2>
+                        </div>
+                        <div class="hidden md:flex flex-1 justify-end gap-8">
+                            <div class="flex items-center gap-9">
+                                <a class="text-text-light-secondary hover:text-text-light transition-colors text-sm font-medium leading-normal"
+                                    href="#">Features</a>
+                                <a class="text-text-light-secondary hover:text-text-light transition-colors text-sm font-medium leading-normal"
+                                    href="#">How it Works</a>
+                                <a class="text-text-light-secondary hover:text-text-light transition-colors text-sm font-medium leading-normal"
+                                    href="#">For Institutions</a>
+                                <a class="text-text-light-secondary hover:text-text-light transition-colors text-sm font-medium leading-normal"
+                                    href="#">About</a>
+                            </div>
+                            <button
+                                class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+                                <span class="truncate">Request a Demo</span>
+                            </button>
+                        </div>
+                    </header>
+                    <div class="@container py-10 md:py-24">
+                        <div class="flex flex-col gap-12 px-4 @[960px]:flex-row @[960px]:items-center">
+                            <div class="flex flex-col gap-6 @[480px]:gap-8 @[960px]:justify-center @[960px]:w-1/2">
+                                <div class="flex flex-col gap-4 text-left">
+                                    <h1
+                                        class="text-text-light text-4xl font-black leading-tight tracking-[-0.033em] @[480px]:text-6xl @[480px]:font-black @[480px]:leading-tight @[480px]:tracking-[-0.033em]">
+                                        Empower Student Success with AI
+                                    </h1>
+                                    <h2
+                                        class="text-text-light-secondary text-sm font-normal leading-normal @[480px]:text-lg @[480px]:font-normal @[480px]:leading-normal max-w-xl">
+                                        Mentora is an AI-powered student success and career readiness platform designed
+                                        to guide students from orientation to graduation and beyond.
+                                    </h2>
+                                </div>
+                                <div class="flex-wrap gap-3 flex">
+                                    <button
+                                        class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 @[480px]:h-12 @[480px]:px-5 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] @[480px]:text-base @[480px]:font-bold @[480px]:leading-normal @[480px]:tracking-[0.015em] hover:bg-primary/90 transition-colors">
+                                        <span class="truncate">Get Started</span>
+                                    </button>
+                                    <button
+                                        class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 @[480px]:h-12 @[480px]:px-5 bg-gray-100 text-text-light text-sm font-bold leading-normal tracking-[0.015em] @[480px]:text-base @[480px]:font-bold @[480px]:leading-normal @[480px]:tracking-[0.015em] hover:bg-gray-200 transition-colors border border-gray-200">
+                                        <span class="truncate">Watch Video</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl @[480px]:h-auto @[960px]:w-1/2"
+                                data-alt="Abstract illustration of students collaborating around a glowing orb representing AI"
+                                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAc1io9zJHFMVcuQCOV5IQAt0awF_GiupP2hDdA62XgzbUu0FlLdA9sWy-oeTZgUAuB8fJzuw7Yf4LE1fEGaAdn4G0BuUqyEtOkMxuC5aSoHrGlssAL4DiADlPIqgrd7WDUFs79bo8L2t1EWhZmCNUFBx6D_kddACU3PfbUCipd_aSsLp2x-HVL1Kd9ukKhAYrxS0Bc8PUAicvL4FHp2KOmQJCAJhOhBLbFBxhNvp7E7XMR4I0UeC56nZsF65oo8yVcTQVuYb1ypoo");'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-12 px-4 py-10 @container">
+                        <div class="flex flex-col gap-4 text-center items-center">
+                            <h1
+                                class="text-text-light tracking-light text-[32px] font-bold leading-tight @[480px]:text-5xl @[480px]:font-black @[480px]:leading-tight @[480px]:tracking-[-0.033em] max-w-3xl">
+                                Discover Our AI-Powered Features
+                            </h1>
+                            <p
+                                class="text-text-light-secondary text-base font-normal leading-normal max-w-3xl @[480px]:text-lg">
+                                Unlock the full potential of every student with our suite of intelligent tools designed
+                                for academic and career excellence.
+                            </p>
+                        </div>
+                        <div class="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-6 p-0">
+                            <div
+                                class="flex flex-1 gap-4 rounded-xl border border-gray-200 bg-white p-6 flex-col shadow-soft">
+                                <div class="text-primary"><span class="material-symbols-outlined !text-3xl">route</span>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <h2 class="text-text-light text-lg font-bold leading-tight">Personalized Learning
+                                        Paths</h2>
+                                    <p class="text-text-light-secondary text-sm font-normal leading-normal">Tailored
+                                        academic roadmaps for each student.</p>
+                                </div>
+                            </div>
+                            <div
+                                class="flex flex-1 gap-4 rounded-xl border border-gray-200 bg-white p-6 flex-col shadow-soft">
+                                <div class="text-primary"><span class="material-symbols-outlined !text-3xl">work</span>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <h2 class="text-text-light text-lg font-bold leading-tight">AI Career Matching</h2>
+                                    <p class="text-text-light-secondary text-sm font-normal leading-normal">Connects
+                                        students with ideal career opportunities.</p>
+                                </div>
+                            </div>
+                            <div
+                                class="flex flex-1 gap-4 rounded-xl border border-gray-200 bg-white p-6 flex-col shadow-soft">
+                                <div class="text-primary"><span
+                                        class="material-symbols-outlined !text-3xl">pie_chart</span></div>
+                                <div class="flex flex-col gap-1">
+                                    <h2 class="text-text-light text-lg font-bold leading-tight">Skill Gap Analysis</h2>
+                                    <p class="text-text-light-secondary text-sm font-normal leading-normal">Identifies
+                                        and suggests courses to bridge skill deficits.</p>
+                                </div>
+                            </div>
+                            <div
+                                class="flex flex-1 gap-4 rounded-xl border border-gray-200 bg-white p-6 flex-col shadow-soft">
+                                <div class="text-primary"><span
+                                        class="material-symbols-outlined !text-3xl">description</span></div>
+                                <div class="flex flex-col gap-1">
+                                    <h2 class="text-text-light text-lg font-bold leading-tight">Resume Builder</h2>
+                                    <p class="text-text-light-secondary text-sm font-normal leading-normal">Craft
+                                        professional resumes with AI assistance.</p>
+                                </div>
+                            </div>
+                            <div
+                                class="flex flex-1 gap-4 rounded-xl border border-gray-200 bg-white p-6 flex-col shadow-soft">
+                                <div class="text-primary"><span class="material-symbols-outlined !text-3xl">mic</span>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <h2 class="text-text-light text-lg font-bold leading-tight">Interview Prep AI</h2>
+                                    <p class="text-text-light-secondary text-sm font-normal leading-normal">Practice
+                                        interviews with an AI coach for real-world success.</p>
+                                </div>
+                            </div>
+                            <div
+                                class="flex flex-1 gap-4 rounded-xl border border-gray-200 bg-white p-6 flex-col shadow-soft">
+                                <div class="text-primary"><span
+                                        class="material-symbols-outlined !text-3xl">groups</span></div>
+                                <div class="flex flex-col gap-1">
+                                    <h2 class="text-text-light text-lg font-bold leading-tight">Mentorship Network</h2>
+                                    <p class="text-text-light-secondary text-sm font-normal leading-normal">Connect with
+                                        alumni and industry professionals.</p>
+                                </div>
+                            </div>
+                            <div
+                                class="flex flex-1 gap-4 rounded-xl border border-gray-200 bg-white p-6 flex-col shadow-soft">
+                                <div class="text-primary"><span
+                                        class="material-symbols-outlined !text-3xl">trending_up</span></div>
+                                <div class="flex flex-col gap-1">
+                                    <h2 class="text-text-light text-lg font-bold leading-tight">Real-time Analytics</h2>
+                                    <p class="text-text-light-secondary text-sm font-normal leading-normal">Track
+                                        student progress and institutional outcomes.</p>
+                                </div>
+                            </div>
+                            <div
+                                class="flex flex-1 gap-4 rounded-xl border border-gray-200 bg-white p-6 flex-col shadow-soft">
+                                <div class="text-primary"><span
+                                        class="material-symbols-outlined !text-3xl">school</span></div>
+                                <div class="flex flex-col gap-1">
+                                    <h2 class="text-text-light text-lg font-bold leading-tight">Automated Advising</h2>
+                                    <p class="text-text-light-secondary text-sm font-normal leading-normal">Streamline
+                                        advisor workloads with intelligent support.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-6 text-center items-center py-10 md:py-20">
+                        <h2
+                            class="text-text-light text-2xl font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5 md:text-3xl">
+                            The Future of Student Success at a Glance</h2>
+                        <div class="w-full grow py-3 px-4">
+                            <div
+                                class="w-full gap-1 overflow-hidden rounded-xl border border-gray-200 aspect-[16/9] flex shadow-soft bg-white">
+                                <div class="w-full bg-center bg-no-repeat bg-cover aspect-auto flex-1"
+                                    data-alt="A screenshot of the Mentora platform dashboard, showing analytics charts, student progress bars, and upcoming tasks."
+                                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuANAu932dYbrcbU7BVOYYy-fckaL57RCOFnM19vA_QLCujL5X1g_9gB6ta6PX2uralRlbHgpBQxfkauOMc6zmmVLX8jln-ivZb5iWWfAkbVHy9SSwZ4dyha8AUghcJNUUlm2rCl6EV7-p-_5Tm5ANUsBiZfyti636uycVBJTivy9fY2CjGhsb4RHrsKJ1jrWY2w6oIO9-2943BZwsDeQd7S__iKkYt6PqA3io-9Y8yIrYNC9tK3GHgtL_BBZojIXqns8omNFgSIEOY");'>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-12 px-4 py-10 text-center items-center">
+                        <div class="flex flex-col gap-4">
+                            <h1
+                                class="text-text-light text-4xl font-black leading-tight tracking-[-0.033em] md:text-5xl">
+                                How It Works</h1>
+                            <p
+                                class="text-text-light-secondary text-base font-normal leading-normal max-w-2xl md:text-lg">
+                                A simple, intuitive process to onboard students and set them on the path to success in
+                                three easy steps.</p>
+                        </div>
+                        <div class="grid md:grid-cols-3 gap-8 w-full">
+                            <div class="flex flex-col items-center gap-4 text-center">
+                                <div
+                                    class="flex items-center justify-center size-16 rounded-xl bg-primary/10 text-primary border border-primary/20">
+                                    <span class="text-2xl font-bold">1</span>
+                                </div>
+                                <h3 class="text-text-light text-xl font-bold">Onboard &amp; Assess</h3>
+                                <p class="text-text-light-secondary text-sm">Students complete a comprehensive profile,
+                                    including academic history, skills, and career aspirations.</p>
+                            </div>
+                            <div class="flex flex-col items-center gap-4 text-center">
+                                <div
+                                    class="flex items-center justify-center size-16 rounded-xl bg-primary/10 text-primary border border-primary/20">
+                                    <span class="text-2xl font-bold">2</span>
+                                </div>
+                                <h3 class="text-text-light text-xl font-bold">AI-Powered Guidance</h3>
+                                <p class="text-text-light-secondary text-sm">Our AI analyzes the data to provide
+                                    personalized course recommendations, career paths, and skill-building resources.</p>
+                            </div>
+                            <div class="flex flex-col items-center gap-4 text-center">
+                                <div
+                                    class="flex items-center justify-center size-16 rounded-xl bg-primary/10 text-primary border border-primary/20">
+                                    <span class="text-2xl font-bold">3</span>
+                                </div>
+                                <h3 class="text-text-light text-xl font-bold">Achieve Career Goals</h3>
+                                <p class="text-text-light-secondary text-sm">Students engage with AI tools for resume
+                                    building, interview prep, and mentorship to land their dream job.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="flex flex-col gap-6 items-center text-center bg-white rounded-xl p-8 md:p-16 my-10 md:my-20 mx-4 border border-gray-200 shadow-soft">
+                        <h2 class="text-text-light text-3xl md:text-5xl font-black leading-tight tracking-[-0.033em]">
+                            Ready to Revolutionize Student Success?</h2>
+                        <p class="text-text-light-secondary text-base md:text-lg max-w-3xl">
+                            Join leading institutions in empowering the next generation. Schedule a personalized demo to
+                            see how Mentora can transform your student outcomes.
+                        </p>
+                        <button
+                            class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors mt-2">
+                            <span class="truncate">Request a Personalized Demo</span>
+                        </button>
+                    </div>
+                    <footer class="border-t border-gray-200 mt-10 py-10 px-4">
+                        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
+                            <div class="col-span-2 lg:col-span-2 flex flex-col gap-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex items-center justify-center text-primary">
+                                        <img src="{{ url_for('static', filename='static/logo-transparent-png.png') }}"
+                                            alt="Mentora Logo"
+                                            class="h-12 w-12 object-contain md:h-16 md:w-16 lg:h-20 lg:w-20">
+                                    </div>
+
+                                    <h2 class="text-text-light text-md font-bold">Mentora</h2>
+                                </div>
+                                <p class="text-text-light-secondary text-sm">AI-powered student success &amp; career
+                                    readiness.</p>
+                            </div>
+                            <div class="flex flex-col gap-3">
+                                <h4 class="text-text-light font-bold text-sm">Product</h4>
+                                <a class="text-text-light-secondary hover:text-text-light text-sm" href="#">Features</a>
+                                <a class="text-text-light-secondary hover:text-text-light text-sm" href="#">For
+                                    Institutions</a>
+                                <a class="text-text-light-secondary hover:text-text-light text-sm" href="#">Pricing</a>
+                                <a class="text-text-light-secondary hover:text-text-light text-sm" href="#">Demo</a>
+                            </div>
+                            <div class="flex flex-col gap-3">
+                                <h4 class="text-text-light font-bold text-sm">Company</h4>
+                                <a class="text-text-light-secondary hover:text-text-light text-sm" href="#">About Us</a>
+                                <a class="text-text-light-secondary hover:text-text-light text-sm" href="#">Careers</a>
+                                <a class="text-text-light-secondary hover:text-text-light text-sm" href="#">Blog</a>
+                                <a class="text-text-light-secondary hover:text-text-light text-sm" href="#">Contact</a>
+                            </div>
+                            <div class="flex flex-col gap-3">
+                                <h4 class="text-text-light font-bold text-sm">Legal</h4>
+                                <a class="text-text-light-secondary hover:text-text-light text-sm" href="#">Privacy
+                                    Policy</a>
+                                <a class="text-text-light-secondary hover:text-text-light text-sm" href="#">Terms of
+                                    Service</a>
+                                <a class="text-text-light-secondary hover:text-text-light text-sm" href="#">Cookie
+                                    Policy</a>
+                            </div>
+                        </div>
+                        <div
+                            class="mt-10 pt-6 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center text-center gap-4">
+                            <p class="text-text-light-secondary text-sm">© 2024 Mentora. All rights reserved.</p>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
