@@ -1,8 +1,10 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for,Response
 import pickle
+import joblib
 import pandas as pd
 import numpy as np
 import os
+import string
 import re
 import nltk
 from nltk.stem import WordNetLemmatizer
@@ -35,6 +37,11 @@ def login():
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(BASE_DIR, "../../ml/models")
 
+
+
+
+
+
 with open(os.path.join(MODEL_DIR, "g1_model.pkl"), "rb") as f:
     g1_model = pickle.load(f)
 
@@ -47,13 +54,20 @@ with open(os.path.join(MODEL_DIR, "g3_model.pkl"), "rb") as f:
 print("Progressive student performance models loaded successfully!")
 
 
-with open(os.path.join(MODEL_DIR, "final_svm_model.pkl"), "rb") as f:
-    fake_review_model = pickle.load(f)
 
-with open(os.path.join(MODEL_DIR, "tfidf_vectorizer.pkl"), "rb") as f:
-    fake_review_tfidf = pickle.load(f)
 
-print("Fake review detection models loaded successfully!")
+
+
+fake_review_pipeline = joblib.load(
+    os.path.join(MODEL_DIR, "fake_review_hybrid_model.pkl")
+)
+
+print("Hybrid fake review detection model loaded successfully!")
+
+
+
+
+
 
 with open(os.path.join(MODEL_DIR, "course_recommender_tfidf.pkl"), "rb") as f:
     course_tfidf = pickle.load(f)
@@ -201,28 +215,46 @@ def predict_pass():
 @auth.route("/predict-fake-review", methods=["POST"])
 def predict_fake_review():
     data = request.json
+
     review_text = data.get("review", "")
+    rating = data.get("rating", None)
+    category = data.get("category", "")
 
-    if not review_text:
-        return jsonify({"error": "Missing 'review' field"}), 400
+    if not review_text or rating is None or not category:
+        return jsonify({
+            "error": "Required fields: review, rating, category"
+        }), 400
 
-    cleaned = clean_review(review_text)
-    print("Cleaned Review:", cleaned)
+    input_df = pd.DataFrame([{
+        "clean_text": review_text,
+        "rating": rating,
+        "category": category
+    }])
 
-    vector = fake_review_tfidf.transform([cleaned])
-    pred = fake_review_model.predict(vector)[0]
+    proba = fake_review_pipeline.predict_proba(input_df)[0]
+    confidence = float(max(proba))
+    pred = int(proba[1] >= 0.5)
 
-    # LinearSVC probability
-    try:
-        prob = fake_review_model._predict_proba_lr(vector)[0][1]
-    except:
-        prob = float(abs(fake_review_model.decision_function(vector)[0]))
+    threshold = 0.70
+
+    if confidence < threshold:
+        return jsonify({
+            "is_fake": 1,
+            "is_truthful": 0,
+            "label": "deceptive",
+            "confidence": confidence,
+            "note": "Low probability → treated as fake"
+        })
 
     return jsonify({
-        "is_fake": int(pred),
-        "label": "deceptive" if pred == 1 else "truthful",
-        "confidence": float(prob)
+        "is_fake": int(pred == 0),
+        "is_truthful": int(pred == 1),
+        "label": "deceptive" if pred == 0 else "truthful",
+        "confidence": confidence
     })
+
+
+
 
 # ----------------------------
 # COURSE RECOMMENDATION SYSTEM (MODULE 2)
