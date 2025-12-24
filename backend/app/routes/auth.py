@@ -1,14 +1,10 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for,Response
-import pickle
-import joblib
+import pickle,joblib,os,string,re,nltk
 import pandas as pd
 import numpy as np
-import os
-import string
-import re
-import nltk
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
+from async_celery.tasks import demo_async_task
 
 auth = Blueprint('auth', __name__, template_folder='templates', url_prefix='/auth')
 
@@ -51,10 +47,6 @@ with open(os.path.join(MODEL_DIR, "g2_model.pkl"), "rb") as f:
 with open(os.path.join(MODEL_DIR, "g3_model.pkl"), "rb") as f:
     g3_model = pickle.load(f)
 
-print("Progressive student performance models loaded successfully!")
-
-
-
 
 
 
@@ -62,7 +54,6 @@ fake_review_pipeline = joblib.load(
     os.path.join(MODEL_DIR, "fake_review_hybrid_model.pkl")
 )
 
-print("Hybrid fake review detection model loaded successfully!")
 
 
 
@@ -78,8 +69,6 @@ with open(os.path.join(MODEL_DIR, "course_similarity_matrix.pkl"), "rb") as f:
 df_courses = pd.read_pickle(
     os.path.join(MODEL_DIR, "course_recommender_dataset.pkl")
 )
-
-print("Course recommendation models loaded successfully!")
 
 
 def get_course_recommendations(course_name, top_n=5):
@@ -278,3 +267,12 @@ def recommend_courses_api():
         "input_course": course_name,
         "recommendations": recommendations.to_dict(orient="records")
     })
+
+
+@auth.route("/run-task")
+def run_task():
+    result = demo_async_task.delay()
+    return {
+        "task_id": result.id,
+        "status": "Task submitted"
+    }

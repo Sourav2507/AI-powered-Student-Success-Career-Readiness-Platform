@@ -1,19 +1,36 @@
 from flask import Flask,redirect,render_template
+from config.config import LocalDevelopmentConfig
+from config.extensions import db,cache,mail
+from async_celery.celery_setup import celery_init_app
 from routes.auth import auth
 from routes.user import user
 from routes.admin import admin
 from routes.ppt_gen import ppt_bp
 
-app = Flask(__name__,
-            template_folder='../../frontend/html',
-            static_folder='../../frontend')
+def create_app():
+    app = Flask(__name__,
+                template_folder='../../frontend/html',
+                static_folder='../../frontend')
+    
+    app.config.from_object(LocalDevelopmentConfig)
+    from async_celery.celery_scheduler import CELERY_BEAT_SCHEDULE
+    app.config["CELERY"]["beat_schedule"] = CELERY_BEAT_SCHEDULE
 
-app.secret_key = "mentora_ai_secret_key"  
+    db.init_app(app)
+    cache.init_app(app)
+    mail.init_app(app)
 
-app.register_blueprint(auth)
-app.register_blueprint(user)
-app.register_blueprint(admin)
-app.register_blueprint(ppt_bp)
+    app.register_blueprint(auth)
+    app.register_blueprint(user)
+    app.register_blueprint(admin)
+    app.register_blueprint(ppt_bp)
+
+    return app
+
+app = create_app()
+
+celery_app = celery_init_app(app)
+app.celery = celery_app
 
 @app.route("/")
 def home():
