@@ -120,7 +120,7 @@ def clean_review(text):
 def home():
     return jsonify({
         "message": "API is running successfully!",
-        "routes": {
+        "route": {
             "/predict-pass": "POST — Predict pass/fail",
             "/predict-cgpa": "POST — Predict CGPA level",
             "/predict-fake-review": "POST — Detect fake employee review"
