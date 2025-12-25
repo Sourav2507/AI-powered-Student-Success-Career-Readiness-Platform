@@ -6,6 +6,7 @@ from async_celery.celery_setup import celery_init_app
 from routes.auth import auth
 from routes.user import user
 from routes.admin import admin
+from routes.ppt_gen import ppt_bp
 from routes.ml import ml
 
 def create_app():
@@ -27,6 +28,7 @@ def create_app():
     app.register_blueprint(auth)
     app.register_blueprint(user)
     app.register_blueprint(admin)
+    app.register_blueprint(ppt_bp)
     app.register_blueprint(ml)
 
     return app
