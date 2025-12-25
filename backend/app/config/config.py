@@ -23,7 +23,7 @@ class LocalDevelopmentConfig(Config):
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
     MAIL_USERNAME = "developersouravdebnath@gmail.com"
-    MAIL_PASSWORD = "REVOKE_THIS_NOW"
+    MAIL_PASSWORD = "duamakuyjncivypi"
     MAIL_DEFAULT_SENDER = "developersouravdebnath@gmail.com"
 
     # ⛔ NO beat_schedule here

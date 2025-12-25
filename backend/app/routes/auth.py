@@ -1,272 +1,104 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for,Response
-import pickle,joblib,os,string,re,nltk
-import pandas as pd
-import numpy as np
-from nltk.stem import WordNetLemmatizer
-from nltk.corpus import stopwords
+from flask import Blueprint, request, jsonify
+from datetime import datetime, timedelta
+from model.models import User,EmailOTP
 from async_celery.tasks import demo_async_task
+from utils.otp import generate_otp
+from async_celery.tasks import send_otp_email
+from config.extensions import db
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 auth = Blueprint('auth', __name__, template_folder='templates', url_prefix='/auth')
 
-@auth.route('/login', methods=['GET', 'POST'])
+@auth.route('/login', methods=['POST'])
 def login():
-    if request.method == 'POST':
-        data = request.get_json()
-        
-        if not data:
-            return jsonify({"error": "No JSON provided"}), 400
+    data = request.get_json()
 
-        username = data.get('username')
-        password = data.get('password')
+    if not data:
+        return jsonify(success=False, error="No JSON data provided"), 400
 
-        # Example authentication logic
-        if username == 'admin' and password == 'password':
-            return jsonify({"message": "Login successful",
-                            'username': username,
-                            'role': 'admin ',
-                            'password':password}), 200
-        else:
-            return jsonify({"error": "Invalid credentials"}), 401
+    username_or_email = data.get('username')
+    password = data.get('password')
 
+    if not username_or_email or not password:
+        return jsonify(success=False, error="Username and password required"), 400
 
+    user = User.query.filter(
+        (User.username == username_or_email) |
+        (User.email == username_or_email)
+    ).first()
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_DIR = os.path.join(BASE_DIR, "../../ml/models")
+    if not user:
+        return jsonify(success=False, error="User not found"), 404
 
+    if not user.active:
+        return jsonify(success=False, error="Account is deactivated"), 403
 
+    if not check_password_hash(user.password, password):
+        return jsonify(success=False, error="Invalid credentials"), 401
 
-
-
-
-with open(os.path.join(MODEL_DIR, "g1_model.pkl"), "rb") as f:
-    g1_model = pickle.load(f)
-
-with open(os.path.join(MODEL_DIR, "g2_model.pkl"), "rb") as f:
-    g2_model = pickle.load(f)
-
-with open(os.path.join(MODEL_DIR, "g3_model.pkl"), "rb") as f:
-    g3_model = pickle.load(f)
-
-
-
-
-fake_review_pipeline = joblib.load(
-    os.path.join(MODEL_DIR, "fake_review_hybrid_model.pkl")
-)
-
-
-
-
-
-
-
-with open(os.path.join(MODEL_DIR, "course_recommender_tfidf.pkl"), "rb") as f:
-    course_tfidf = pickle.load(f)
-
-with open(os.path.join(MODEL_DIR, "course_similarity_matrix.pkl"), "rb") as f:
-    course_sim_matrix = pickle.load(f)
-
-df_courses = pd.read_pickle(
-    os.path.join(MODEL_DIR, "course_recommender_dataset.pkl")
-)
-
-
-def get_course_recommendations(course_name, top_n=5):
-    course_name = course_name.lower()
-
-    # Match user input with dataset
-    matches = df_courses[df_courses["clean_name"].str.contains(course_name, case=False, na=False)]
-
-    if len(matches) == 0:
-        return None  # no match found
-
-    idx = matches.index[0]
-
-    # Get similarity scores
-    sim_scores = list(enumerate(course_sim_matrix[idx]))
-    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-
-    # Top-N (skip itself)
-    sim_scores = sim_scores[1 : top_n + 1]
-
-    recommended_indices = [i[0] for i in sim_scores]
-
-    return df_courses.iloc[recommended_indices][
-        ["Course Name", "University", "Difficulty Level", "Course Rating", "Skills"]
-    ]
-
-
-# ============================
-# PREPROCESS REVIEW TEXT
-# ============================
-
-nltk.download('stopwords', quiet=True)
-nltk.download('punkt', quiet=True)
-nltk.download('wordnet', quiet=True)
-
-stop_words = set(stopwords.words("english"))
-lemmatizer = WordNetLemmatizer()
-
-def clean_review(text):
-    """Clean input review for fake review detection."""
-    text = text.lower()
-    text = re.sub(r"[^a-z\s]", " ", text)
-    tokens = text.split()
-    tokens = [lemmatizer.lemmatize(w) for w in tokens if w not in stop_words]
-    return " ".join(tokens)
-
-# ============================
-# ROUTES
-# ============================
-
-@auth.route("/", methods=["GET"])
-def home():
-    return jsonify({
-        "message": "API is running successfully!",
-        "route": {
-            "/predict-pass": "POST — Predict pass/fail",
-            "/predict-cgpa": "POST — Predict CGPA level",
-            "/predict-fake-review": "POST — Detect fake employee review"
+    return jsonify(
+        success=True,
+        message="Login successful",
+        user={
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role,
+            "profile_image": user.profile_image
         }
-    })
-
-# ----------------------------
-# Student Performance — PASS/FAIL
-# ----------------------------
-def stage_detect(data):
-    if "G1" not in data:
-        return 1
-    if "G2" not in data:
-        return 2
-    return 3
-
-@auth.route("/predict-cgpa", methods=["POST"])
-def predict_cgpa():
-    data = request.json
-    df = pd.DataFrame([data])
-
-    stage = stage_detect(data)
-
-    if stage == 1:
-        g1 = g1_model.predict(df)[0]
-        cgpa = (g1 / 20.0) * 10.0
-        cgpa = max(0.0, min(cgpa, 10.0))
-
-        return jsonify({
-            "predicted_cgpa": round(float(cgpa), 2),
-            "derived_from": "Predicted G1",
-            "stage": "Stage 1 (Early)"
-        })
-
-    if stage == 2:
-        g2 = g2_model.predict(df)[0]
-        cgpa = (g2 / 20.0) * 10.0
-        cgpa = max(0.0, min(cgpa, 10.0))
-
-        return jsonify({
-            "predicted_cgpa": round(float(cgpa), 2),
-            "derived_from": "Predicted G2",
-            "stage": "Stage 2 (Mid)"
-        })
-
-    cgpa = g3_model.predict(df)[0]
-    cgpa = max(0.0, min(cgpa, 10.0))
-
-    return jsonify({
-        "predicted_cgpa": round(float(cgpa), 2),
-        "derived_from": "Predicted G3",
-        "stage": "Stage 3 (Final)"
-    })
+    ), 200
 
 
-@auth.route("/predict-pass", methods=["POST"])
-def predict_pass():
-    data = request.json
-    df = pd.DataFrame([data])
+@auth.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
 
-    if stage_detect(data) != 3:
-        return jsonify({
-            "error": "Pass/Fail prediction requires G1 and G2"
-        }), 400
+    if not data:
+        return jsonify(success=False, error="No JSON data provided"), 400
 
-    cgpa = g3_model.predict(df)[0]
-    cgpa = max(0.0, min(cgpa, 10.0))
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
 
-    return jsonify({
-        "predicted_cgpa": round(float(cgpa), 2),
-        "prediction": int(cgpa >= 5.0)
-    })
+    if not username or not email or not password:
+        return jsonify(
+            success=False,
+            error="Username, email and password are required"
+        ), 400
 
+    existing_user = User.query.filter(
+        (User.username == username) |
+        (User.email == email)
+    ).first()
 
-# ----------------------------
-# Fake Review Detection
-# ----------------------------
-@auth.route("/predict-fake-review", methods=["POST"])
-def predict_fake_review():
-    data = request.json
+    if existing_user:
+        return jsonify(
+            success=False,
+            error="Username or email already exists"
+        ), 409
 
-    review_text = data.get("review", "")
-    rating = data.get("rating", None)
-    category = data.get("category", "")
+    hashed_password = generate_password_hash(password)
 
-    if not review_text or rating is None or not category:
-        return jsonify({
-            "error": "Required fields: review, rating, category"
-        }), 400
+    user = User(
+        username=username,
+        email=email,
+        password=hashed_password
+    )
 
-    input_df = pd.DataFrame([{
-        "clean_text": review_text,
-        "rating": rating,
-        "category": category
-    }])
+    db.session.add(user)
+    db.session.commit()
 
-    proba = fake_review_pipeline.predict_proba(input_df)[0]
-    confidence = float(max(proba))
-    pred = int(proba[1] >= 0.5)
-
-    threshold = 0.70
-
-    if confidence < threshold:
-        return jsonify({
-            "is_fake": 1,
-            "is_truthful": 0,
-            "label": "deceptive",
-            "confidence": confidence,
-            "note": "Low probability → treated as fake"
-        })
-
-    return jsonify({
-        "is_fake": int(pred == 0),
-        "is_truthful": int(pred == 1),
-        "label": "deceptive" if pred == 0 else "truthful",
-        "confidence": confidence
-    })
-
-
-
-
-# ----------------------------
-# COURSE RECOMMENDATION SYSTEM (MODULE 2)
-# ----------------------------
-@auth.route("/recommend-courses", methods=["POST"])
-def recommend_courses_api():
-    data = request.json
-
-    course_name = data.get("course_name", "")
-    top_n = data.get("top_n", 5)
-
-    if not course_name:
-        return jsonify({"error": "Missing 'course_name' field"}), 400
-
-    recommendations = get_course_recommendations(course_name, top_n)
-
-    if recommendations is None:
-        return jsonify({"error": "Course not found"}), 404
-
-    return jsonify({
-        "input_course": course_name,
-        "recommendations": recommendations.to_dict(orient="records")
-    })
+    return jsonify(
+        success=True,
+        message="User registered successfully",
+        user={
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role
+        }
+    ), 201
 
 
 @auth.route("/run-task")
@@ -276,3 +108,44 @@ def run_task():
         "task_id": result.id,
         "status": "Task submitted"
     }
+
+@auth.route("/send-otp", methods=["POST"])
+def send_otp():
+    email = request.json.get("email", "").lower().strip()
+    if not email:
+        return jsonify(success=False, error="Email required"), 400
+
+    EmailOTP.query.filter_by(email=email, verified=False).delete()
+
+    otp = generate_otp()
+    expires_at = datetime.utcnow() + timedelta(seconds=290)
+
+    record = EmailOTP(email=email, otp=otp, expires_at=expires_at)
+    db.session.add(record)
+    db.session.commit()
+
+    send_otp_email.delay(email, otp)
+    return jsonify(success=True, message="OTP sent")
+
+
+@auth.route("/verify-otp", methods=["POST"])
+def verify_otp():
+    email = request.json.get("email", "").lower().strip()
+    otp = request.json.get("otp", "").upper().strip()
+
+    record = EmailOTP.query.filter_by(
+        email=email,
+        otp=otp,
+        verified=False
+    ).first()
+
+    if not record:
+        return jsonify(success=False, error="Invalid OTP"), 400
+
+    if datetime.utcnow() > record.expires_at:
+        return jsonify(success=False, error="OTP expired"), 400
+
+    record.verified = True
+    db.session.commit()
+
+    return jsonify(success=True, message="OTP verified")
