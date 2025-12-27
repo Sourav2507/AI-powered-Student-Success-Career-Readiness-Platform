@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='static/logo-transparent-png.png') }}">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Mentora Login</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(120%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateX(120%);
+            }
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4913ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#151022",
+                        "text-light": "#1d2333",
+                        "text-light-secondary": "#5c6271",
+                        "teal-primary": "#14b8a6",
+                        "teal-soft": "#f0fdfa",
+                        "teal-primary-hover": "#0d9488",
+                        "red-error": "#ef4444",
+                        "green-success": "#22c55e",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                    boxShadow: {
+                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
+                        'card': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)',
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-background-light font-display">
+    <div class="relative flex min-h-screen flex-col">
+
+        <!-- HEADER -->
+        <header class="flex items-center justify-between whitespace-nowrap
+         border-b border-gray-200 bg-white
+         px-4 sm:px-10 py-0
+         sticky top-0 z-50">
+
+            <div class="flex items-center gap-4 text-text-light">
+                <img src="{{ url_for('static', filename='static/logo-transparent-png.png') }}" alt="Mentora Logo"
+                    class="w-16 h-16 object-contain">
+                <h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">
+                    Mentora
+                </h2>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <span class="text-text-light-secondary text-sm hidden sm:block">
+                    Don’t have an account?
+                </span>
+                <a href="/auth/register" class="text-teal-primary hover:text-teal-primary-hover
+              text-sm font-bold transition-colors">
+                    Register
+                </a>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex flex-1 justify-center px-4 sm:px-8 lg:px-16 py-10">
+            <div class="w-full max-w-[1100px] flex flex-col items-center">
+
+                <!-- PAGE HEADING -->
+                <div class="w-full max-w-[880px] mb-8 text-center md:text-left">
+                    <h1 class="text-text-light text-3xl font-black leading-tight tracking-[-0.033em] md:text-4xl">
+                        Welcome back
+                    </h1>
+                    <p class="text-text-light-secondary text-base mt-2">
+                        Sign in to continue to Mentora
+                    </p>
+                </div>
+
+                <!-- LOGIN CARD -->
+                <div
+                    class="w-full max-w-[880px] bg-white rounded-xl shadow-card border border-gray-100 overflow-hidden">
+
+                    <div class="p-5 flex flex-col gap-5">
+
+                        <!-- LOGIN SECTION HEADER -->
+                        <div class="flex items-center gap-3 border-b border-gray-100 pb-3 mb-1">
+                            <div
+                                class="flex items-center justify-center size-8 rounded-full bg-teal-soft text-teal-primary">
+                                <span class="material-symbols-outlined text-lg">
+                                    lock
+                                </span>
+                            </div>
+                            <h2 class="text-lg font-bold text-text-light">
+                                Login Credentials
+                            </h2>
+                        </div>
+
+
+                        <!-- CONTENT GRID -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                            <!-- LEFT: LOGIN FORM -->
+                            <form id="login-form" class="flex flex-col gap-4">
+
+                                <!-- EMAIL / USERNAME -->
+                                <div class="flex flex-col gap-1">
+                                    <label class="block text-sm font-medium text-text-light mb-1.5">
+                                        Username or Email
+                                    </label>
+                                    <input class="w-full rounded-lg border-gray-300 bg-gray-50 px-3 py-2 text-sm
+                   focus:border-teal-primary focus:ring-teal-primary" placeholder="student@university.edu"
+                                        type="text" />
+                                </div>
+
+                                <!-- PASSWORD -->
+                                <div class="flex flex-col gap-1">
+                                    <label class="block text-sm font-medium text-text-light mb-1.5">
+                                        Password
+                                    </label>
+                                    <input class="w-full rounded-lg border-gray-300 bg-gray-50 px-3 py-2 text-sm
+                   focus:border-teal-primary focus:ring-teal-primary" placeholder="••••••••" type="password" />
+                                </div>
+
+                                <!-- FORGOT -->
+                                <div class="flex justify-end">
+                                    <a href="#" class="text-xs text-teal-primary hover:underline">
+                                        Forgot password?
+                                    </a>
+                                </div>
+
+                                <!-- SUBMIT -->
+                                <button class="mt-1 w-full rounded-lg bg-teal-primary px-4 py-2 text-sm font-bold text-white
+                 hover:bg-teal-primary-hover transition">
+                                    Log In
+                                </button>
+                            </form>
+
+                            <!-- RIGHT: SOCIAL LOGIN -->
+                            <div class="flex flex-col justify-center gap-4 border-l border-gray-200 pl-6
+               md:pl-6 md:border-l sm:border-l-0 sm:pl-0">
+
+                                <p class="text-xs text-text-light-secondary text-center uppercase font-medium">
+                                    Or continue with
+                                </p>
+
+                                <button id="google-login" class="flex items-center justify-center gap-3 rounded-lg border border-gray-200
+         py-2.5 text-sm font-bold hover:bg-gray-50 transition">
+
+                                    <!-- Google Logo -->
+                                    <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92
+         c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57
+         c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77
+         c-.98.66-2.23 1.06-3.71 1.06
+         c-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84
+         C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09
+         s.13-1.43.35-2.09V7.07H2.18
+         C1.43 8.55 1 10.22 1 12
+         s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15
+         C17.45 2.09 14.97 1 12 1
+         C7.7 1 3.99 3.47 2.18 7.07l3.66 2.84
+         C6.71 7.31 9.14 5.38 12 5.38z" fill="#EA4335" />
+                                    </svg>
+
+                                    <span>Google</span>
+                                </button>
+
+
+                                <button id="facebook-login" class="flex items-center justify-center gap-3 rounded-lg border border-gray-200
+         py-2.5 text-sm font-bold hover:bg-gray-50 transition">
+
+                                    <!-- Facebook Logo -->
+                                    <svg class="w-5 h-5 text-[#1877F2]" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M9.101 23.691v-7.98H6.627v-3.667h2.474
+         v-1.58c0-4.085 1.848-5.978 5.858-5.978
+         .401 0 .955.042 1.468.103
+         a8.68 8.68 0 0 1 1.141.195v3.325
+         a8.623 8.623 0 0 0-.653-.036
+         c-2.048 0-2.733.743-2.733 2.031
+         v1.95h3.972l-.596 3.667h-3.376v7.98h-5.08Z" />
+                                    </svg>
+
+                                    <span>Facebook</span>
+                                </button>
+
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="border-t border-gray-200 py-6 bg-white">
+            <div class="max-w-[960px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-sm text-text-light-secondary">
+                    © 2025 Mentora. All rights reserved.
+                </p>
+                <div class="flex gap-5">
+                    <a class="text-sm hover:text-teal-primary" href="#">Privacy</a>
+                    <a class="text-sm hover:text-teal-primary" href="#">Terms</a>
+                    <a class="text-sm hover:text-teal-primary" href="#">Support</a>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+    <div class="fixed right-6 top-[120px] z-50 flex flex-col gap-3 max-w-sm" id="toast-container">
+    </div>
+</body>
+<script>
+    function showToast(message, type = "success") {
+        const toast = document.createElement("div");
+
+        let borderColor = "border-teal-primary";
+        let icon = "check_circle";
+        let iconColor = "text-teal-primary";
+
+        if (type === "error") {
+            borderColor = "border-red-500";
+            icon = "error";
+            iconColor = "text-red-500";
+        }
+
+        if (type === "warning") {
+            borderColor = "border-yellow-400";
+            icon = "info";
+            iconColor = "text-yellow-500";
+        }
+
+        toast.className = `
+        flex items-center gap-3 p-4 bg-white border-l-4
+        ${borderColor}
+        rounded-lg shadow-lg text-sm font-medium
+        will-change-transform
+    `;
+
+        toast.innerHTML = `
+        <span class="material-symbols-outlined ${iconColor}">
+            ${icon}
+        </span>
+        <span>${message}</span>
+    `;
+
+        /* ▶️ Slide in */
+        toast.style.animation = "slideInRight 0.35s ease-out forwards";
+
+        const container = document.getElementById("toast-container");
+        container.appendChild(toast);
+
+        /* ⏳ Slide out */
+        setTimeout(() => {
+            toast.style.animation = "slideOutRight 0.3s ease-in forwards";
+
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 2600);
+    }
+
+    /* -----------------------------
+       LOGIN FORM HANDLER
+    ----------------------------- */
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const username = document.querySelector("input[type='text']").value.trim();
+        const password = document.querySelector("input[type='password']").value;
+
+        if (!username || !password) {
+            return showToast("Username and password required", "error");
+        }
+
+        try {
+            const res = await fetch("/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await res.json();
+
+            if (!data.success) {
+                return showToast(data.error || "Login failed", "error");
+            }
+
+            showToast("Login successful");
+
+            setTimeout(() => {
+                window.location.href = "/dashboard";
+            }, 1500);
+
+        } catch (err) {
+            showToast("Server error. Please try again.", "error");
+        }
+    });
+
+    /* -----------------------------
+       SOCIAL BUTTONS
+    ----------------------------- */
+    document.getElementById("google-login").addEventListener("click", () => {
+        showToast("Google login will be available soon ", "warning");
+    });
+
+    document.getElementById("facebook-login").addEventListener("click", () => {
+        showToast("Facebook login will be available soon ", "warning");
+    });
+</script>
+
+</html>

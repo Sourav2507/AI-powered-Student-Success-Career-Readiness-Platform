@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from config.extensions import db
+from backend.app.config.extensions import db
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -27,3 +27,11 @@ class EmailOTP(db.Model):
     expires_at = db.Column(db.DateTime, nullable=False)
     verified = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class PhoneOTP(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    phone = db.Column(db.String(20), index=True, nullable=False)
+    otp = db.Column(db.String(7), nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=False)
+    verified = db.Column(db.Boolean, default=False)
+

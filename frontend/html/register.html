@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='static/logo-transparent-png.png') }}">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Mentora Registration Page</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24
+        }
+
+        .verified-badge {
+            color: #10b981;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(120%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateX(120%);
+            }
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4913ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#151022",
+                        "text-light": "#1d2333",
+                        "text-light-secondary": "#5c6271",
+                        "teal-primary": "#14b8a6",
+                        "teal-primary-hover": "#0d9488",
+                        "teal-soft": "#f0fdfa", // teal-50
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                    boxShadow: {
+                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-background-light font-display">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            <header
+                class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 bg-white px-4 sm:px-10 py-0 sticky top-0 z-50">
+                <div class="flex items-center gap-4 text-text-light">
+                    <div class="flex items-center gap-4 text-text-light">
+                        <div class="text-primary">
+                            <img src="{{ url_for('static', filename='static/logo-transparent-png.png') }}"
+                                alt="Mentora Logo" class="w-16 h-16 object-contain">
+                        </div>
+                    </div>
+                    <h2 class="text-text-light text-lg font-bold leading-tight tracking-[-0.015em]">Mentora</h2>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-text-light-secondary text-sm hidden sm:block">Already have an account?</span>
+                    <a class="text-teal-primary hover:text-teal-primary-hover text-sm font-bold transition-colors"
+                        href="/auth/login">Sign In</a>
+                </div>
+            </header>
+            <!-- Progress Bar -->
+            <div class="px-6 py-3 bg-white border-b">
+                <div class="flex justify-between text-sm text-gray-500 mb-2">
+                    <span>Step <span id="current-step">1</span> of 3</span>
+                    <span id="progress-percent">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="progress-bar" class="bg-teal-primary h-2 rounded-full transition-all duration-300"
+                        style="width: 33%"></div>
+                </div>
+            </div>
+
+            <div class="flex flex-1 justify-center px-4 sm:px-8 lg:px-16 py-3 bg-background-light">
+                <div class="layout-content-container flex flex-col w-full max-w-[1100px] flex-1">
+                    <div class="flex flex-col gap-2 mb-8 text-center md:text-left">
+                        <h1 class="text-text-light text-3xl font-black leading-tight tracking-[-0.033em] md:text-4xl">
+                            Create your account
+                        </h1>
+                        <p class="text-text-light-secondary text-base">
+                            Join Mentora to unlock your personalized AI-powered career roadmap.
+                        </p>
+                    </div>
+                    <form class="flex flex-col gap-5" onsubmit="event.preventDefault();">
+                        <section class="step-section bg-white rounded-xl shadow-soft p-5 border border-gray-200"
+                            data-step="1">
+                            <div class="flex items-center gap-3 mb-4 border-b border-gray-100 pb-3">
+                                <div
+                                    class="flex items-center justify-center size-8 rounded-full bg-teal-soft text-teal-primary">
+                                    <span class="material-symbols-outlined text-lg">person</span>
+                                </div>
+                                <h2 class="text-lg font-bold text-text-light">Account Details</h2>
+                            </div>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                                <!-- LEFT COLUMN -->
+                                <div class="flex flex-col gap-6">
+
+                                    <!-- Username -->
+                                    <div class="w-full">
+                                        <label class="block text-sm font-medium text-text-light mb-1.5"
+                                            for="username">Username</label>
+                                        <input class="w-full rounded-lg border-gray-300 bg-white px-3 py-2 text-sm
+                       text-text-light placeholder-gray-400
+                       focus:border-teal-primary focus:ring-teal-primary" id="username"
+                                            placeholder="Enter your username" type="text" />
+                                    </div>
+
+                                    <!-- Password -->
+                                    <div class="w-full">
+                                        <label class="block text-sm font-medium text-text-light mb-1.5"
+                                            for="password">Password</label>
+                                        <input class="w-full rounded-lg border-gray-300 bg-white px-3 py-2 text-sm
+                       text-text-light placeholder-gray-400
+                       focus:border-teal-primary focus:ring-teal-primary" id="password" placeholder="••••••••"
+                                            type="password" />
+                                    </div>
+
+                                    <!-- Confirm Password -->
+                                    <div class="w-full">
+                                        <label class="block text-sm font-medium text-text-light mb-1.5"
+                                            for="confirm-password">Confirm Password</label>
+                                        <input class="w-full rounded-lg border-gray-300 bg-white px-3 py-2 text-sm
+                       text-text-light placeholder-gray-400
+                       focus:border-teal-primary focus:ring-teal-primary" id="confirm-password" placeholder="••••••••"
+                                            type="password" />
+                                    </div>
+
+                                </div>
+
+                                <!-- RIGHT COLUMN -->
+                                <div class="flex flex-col gap-6">
+
+                                    <!-- Email + OTP Block -->
+                                    <div class="grid gap-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
+
+                                        <!-- Email -->
+                                        <div class="w-full">
+                                            <label class="block text-sm font-medium text-text-light mb-1.5"
+                                                for="email">Email Address</label>
+                                            <div class="flex gap-2">
+                                                <input class="w-full flex-1 rounded-lg border-gray-300 bg-white px-3 py-2 text-sm
+                               text-text-light placeholder-gray-400
+                               focus:border-teal-primary focus:ring-teal-primary" id="email"
+                                                    placeholder="student@university.edu" type="email" />
+
+                                                <button id="send-email-otp" class="whitespace-nowrap px-4 py-2 bg-teal-primary
+                               hover:bg-teal-primary-hover text-white text-sm
+                               font-bold rounded-lg transition-colors
+                               shadow-sm disabled:opacity-50 disabled:cursor-not-allowed" type="button">
+                                                    Send OTP
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Email OTP -->
+                                        <div class="w-full relative">
+                                            <label class="block text-sm font-medium text-text-light mb-1.5"
+                                                for="email-otp">Enter Email OTP</label>
+
+                                            <div class="flex gap-2 items-start">
+                                                <div class="relative flex-1">
+                                                    <input class="w-full rounded-lg border-gray-300 bg-white px-3 py-2
+                                   text-sm text-text-light tracking-widest text-center
+                                   placeholder-gray-400
+                                   focus:border-teal-primary focus:ring-teal-primary" id="email-otp" maxlength="7"
+                                                        inputmode="alphanumeric" autocomplete="one-time-code"
+                                                        placeholder="• • • • • • •" type="text" />
+                                                </div>
+
+                                                <button id="verify-email-otp" class="whitespace-nowrap px-4 py-2 bg-white
+                               border border-gray-300 hover:bg-gray-50
+                               text-text-light text-sm font-bold
+                               rounded-lg transition-colors shadow-sm
+                               disabled:opacity-50" type="button">
+                                                    Verify
+                                                </button>
+                                            </div>
+
+                                            <!-- Verified Badge -->
+                                            <div class="mt-2 hidden" id="email-verified-badge">
+                                                <span class="verified-badge">
+                                                    <span class="material-symbols-outlined text-sm">
+                                                        check_circle
+                                                    </span>
+                                                    Email Verified
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="flex justify-end mt-6">
+                                <button type="button" id="step1-next" disabled
+                                    class="next-btn px-6 py-2 bg-teal-primary text-white rounded-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed">
+                                    Next
+                                </button>
+                            </div>
+                        </section>
+
+
+                        <section class="step-section bg-white rounded-xl shadow-soft p-5 border border-gray-200 hidden"
+                            data-step="2">
+
+
+                            <div class="flex items-center gap-3 mb-4 border-b border-gray-100 pb-3">
+                                <div
+                                    class="flex items-center justify-center size-8 rounded-full bg-teal-soft text-teal-primary">
+                                    <span class="material-symbols-outlined text-lg">smartphone</span>
+                                </div>
+                                <h2 class="text-lg font-bold text-text-light">Phone Verification</h2>
+                            </div>
+                            <div class="grid gap-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                                <div class="w-full">
+                                    <label class="block text-sm font-medium text-text-light mb-1.5" for="phone">Phone
+                                        Number</label>
+                                    <div class="flex gap-2">
+                                        <input
+                                            class="w-full flex-1 rounded-lg border-gray-300 bg-white px-3 py-2 text-sm text-text-light placeholder-gray-400 focus:border-teal-primary focus:ring-teal-primary"
+                                            id="phone" placeholder="+1 (555) 000-0000" type="tel" />
+                                        <button
+                                            class="whitespace-nowrap px-4 py-2 bg-teal-primary hover:bg-teal-primary-hover text-white text-sm font-bold rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                            type="button">
+                                            Send OTP
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="w-full">
+                                    <label class="block text-sm font-medium text-text-light mb-1.5"
+                                        for="phone-otp">Enter Phone OTP</label>
+                                    <div class="flex gap-2 items-start">
+                                        <div class="relative flex-1">
+                                            <input id="phone-otp" maxlength="7" inputmode="text"
+                                                autocomplete="one-time-code"
+                                                class="w-full rounded-lg border-gray-300 bg-white px-3 py-2 text-sm text-text-light tracking-widest text-center"
+                                                placeholder="• • • • • • •" type="text" />
+
+                                        </div>
+                                        <button id="verify-phone-otp"
+                                            class="whitespace-nowrap px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-text-light text-sm font-bold rounded-lg transition-colors shadow-sm disabled:opacity-50"
+                                            type="button">
+                                            Verify
+                                        </button>
+                                    </div>
+                                    <div class="mt-2 hidden" id="phone-verified-badge">
+                                        <span class="verified-badge">
+                                            <span class="material-symbols-outlined text-sm">check_circle</span>
+                                            Phone Verified
+                                        </span>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="flex justify-between mt-6">
+                                <button type="button"
+                                    class="prev-btn px-6 py-2 border border-gray-300 rounded-lg font-bold">
+                                    Previous
+                                </button>
+
+                                <button type="button" id="step2-next"
+                                    class="next-btn px-6 py-2 bg-teal-primary text-white rounded-lg font-bold">
+                                    Next
+                                </button>
+                            </div>
+
+                        </section>
+
+                        <section class="step-section bg-white rounded-xl shadow-soft p-5 border border-gray-200 hidden"
+                            data-step="3">
+
+                            <div class="flex items-center gap-3 mb-4 border-b border-gray-100 pb-3">
+                                <div
+                                    class="flex items-center justify-center size-8 rounded-full bg-teal-soft text-teal-primary">
+                                    <span class="material-symbols-outlined text-lg">badge</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <h2 class="text-lg font-bold text-text-light">Profile Details</h2>
+                                    <p class="text-xs text-text-light-secondary font-medium">Optional - you can fill
+                                        this later</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+                                <!-- COLUMN 1 -->
+                                <div class="flex flex-col gap-4">
+
+                                    <div class="w-full">
+                                        <label class="block text-sm font-medium text-text-light mb-1.5"
+                                            for="first-name">First Name</label>
+                                        <input class="w-full rounded-lg border-gray-300 bg-white px-3 py-2 text-sm
+                       text-text-light focus:border-teal-primary focus:ring-teal-primary" id="first-name"
+                                            placeholder="Jane" type="text" />
+                                    </div>
+
+                                    <div class="w-full">
+                                        <label class="block text-sm font-medium text-text-light mb-1.5"
+                                            for="last-name">Last Name</label>
+                                        <input class="w-full rounded-lg border-gray-300 bg-white px-3 py-2 text-sm
+                       text-text-light focus:border-teal-primary focus:ring-teal-primary" id="last-name"
+                                            placeholder="Doe" type="text" />
+                                    </div>
+
+                                </div>
+
+                                <!-- COLUMN 2 -->
+                                <div class="flex flex-col gap-4">
+
+                                    <div class="w-full">
+                                        <label class="block text-sm font-medium text-text-light mb-1.5"
+                                            for="age">Age</label>
+                                        <input class="w-full rounded-lg border-gray-300 bg-white px-3 py-2 text-sm
+                       text-text-light focus:border-teal-primary focus:ring-teal-primary" id="age" min="16" max="99"
+                                            placeholder="20" type="number" />
+                                    </div>
+
+                                    <div class="w-full">
+                                        <label class="block text-sm font-medium text-text-light mb-1.5"
+                                            for="gender">Gender</label>
+                                        <select class="w-full rounded-lg border-gray-300 bg-white px-3 py-2 text-sm
+                       text-text-light focus:border-teal-primary focus:ring-teal-primary" id="gender">
+                                            <option disabled selected value="">Select</option>
+                                            <option value="female">Female</option>
+                                            <option value="male">Male</option>
+                                            <option value="non-binary">Non-binary</option>
+                                            <option value="other">Other</option>
+                                            <option value="prefer-not-to-say">Prefer not to say</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Terms -->
+                                    <div class="flex items-start gap-3 mt-1">
+                                        <input id="agree-terms" type="checkbox" class="mt-1 h-4 w-4 rounded border-gray-300
+                       text-teal-primary focus:ring-teal-primary" />
+
+                                        <label for="agree-terms" class="text-sm text-text-light-secondary">
+                                            I agree to the
+                                            <a href="#" class="text-teal-primary underline">Terms</a>
+                                            and
+                                            <a href="#" class="text-teal-primary underline">Privacy Policy</a>.
+                                        </label>
+                                    </div>
+
+
+
+                                </div>
+
+                                <!-- COLUMN 3 -->
+                                <div class="flex flex-col gap-4">
+
+                                    <div class="w-full">
+                                        <label class="block text-sm font-medium text-text-light mb-1.5"
+                                            for="reg-number">Registration Number</label>
+                                        <input class="w-full rounded-lg border-gray-300 bg-white px-3 py-2 text-sm
+                       text-text-light focus:border-teal-primary focus:ring-teal-primary" id="reg-number"
+                                            placeholder="Student ID" type="text" />
+                                    </div>
+                                    <div class="w-full">
+                                        <label class="block text-sm font-medium text-text-light mb-1.5"
+                                            for="address">Address</label>
+                                        <input class="w-full rounded-lg border-gray-300 bg-white px-3 py-2 text-sm
+                       text-text-light focus:border-teal-primary focus:ring-teal-primary" id="address"
+                                            placeholder="123 Campus Way..." type="text" />
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <!-- ACTION BUTTONS -->
+                            <div class="flex justify-between items-center mt-6">
+                                <button type="button"
+                                    class="prev-btn px-6 py-2 border border-gray-300 rounded-lg font-bold">
+                                    Previous
+                                </button>
+
+                                <button type="button" id="final-submit" disabled class="px-6 py-2 bg-teal-primary text-white rounded-lg font-bold
+               disabled:opacity-50 disabled:cursor-not-allowed">
+                                    Complete Registration
+                                </button>
+                            </div>
+
+                        </section>
+
+
+
+                    </form>
+                </div>
+            </div>
+            <div class="absolute right-6 top-[120px] z-50 flex flex-col gap-3 max-w-sm" id="toast-container">
+                <div class="hidden flex items-center w-full max-w-xs p-4 space-x-3 text-text-light bg-white rounded-lg shadow-lg border-l-4 border-teal-primary"
+                    role="alert">
+                    <span class="material-symbols-outlined text-teal-primary">check_circle</span>
+                    <div class="text-sm font-medium">OTP Verified Successfully.</div>
+                </div>
+                <div class="hidden flex items-center w-full max-w-xs p-4 space-x-3 text-text-light bg-white rounded-lg shadow-lg border-l-4 border-red-500"
+                    role="alert">
+                    <span class="material-symbols-outlined text-red-500">error</span>
+                    <div class="text-sm font-medium">Invalid OTP. Please try again.</div>
+                </div>
+            </div>
+            <footer class="border-t border-gray-200 py-6 px-4 bg-white">
+                <div
+                    class="flex flex-col md:flex-row justify-between items-center text-center gap-4 max-w-[960px] mx-auto">
+                    <p class="text-text-light-secondary text-sm">© 2025 Mentora. All rights reserved.</p>
+                    <div class="flex gap-5">
+                        <a class="text-text-light-secondary hover:text-teal-primary text-sm transition-colors"
+                            href="#">Help Center</a>
+                        <a class="text-text-light-secondary hover:text-teal-primary text-sm transition-colors"
+                            href="#">Contact Support</a>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+</body>
+
+<script>
+    localStorage.removeItem("emailOtpVerified");
+    localStorage.removeItem("phoneOtpVerified");
+
+    let currentStep = 1;
+    const totalSteps = 3;
+
+    let emailOtpVerified = false;
+    let phoneOtpVerified = false;
+
+    const sections = document.querySelectorAll(".step-section");
+    const stepText = document.getElementById("current-step");
+    const progressText = document.getElementById("progress-percent");
+    const progressBar = document.getElementById("progress-bar");
+
+    const usernameInput = document.getElementById("username");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const confirmPasswordInput = document.getElementById("confirm-password");
+
+    [usernameInput, emailInput, passwordInput, confirmPasswordInput]
+        .forEach(el => el.addEventListener("input", () => validateStep1()));
+
+    const sendEmailOtpBtn = document.getElementById("send-email-otp");
+    const verifyEmailOtpBtn = document.getElementById("verify-email-otp");
+    const emailOtpInput = document.getElementById("email-otp");
+    const emailVerifiedBadge = document.getElementById("email-verified-badge");
+    const step1NextBtn = document.getElementById("step1-next");
+
+    const phoneInput = document.getElementById("phone");
+    const sendPhoneOtpBtn = phoneInput.nextElementSibling;
+    const phoneOtpInput = document.getElementById("phone-otp");
+    const verifyPhoneOtpBtn = document.getElementById("verify-phone-otp");
+    const step2NextBtn = document.getElementById("step2-next");
+
+    function showToast(message, type = "success") {
+        const toast = document.createElement("div");
+
+        let border = "border-teal-primary";
+        let icon = "check_circle";
+        let iconColor = "text-teal-primary";
+
+        if (type === "error") {
+            border = "border-red-500";
+            icon = "error";
+            iconColor = "text-red-500";
+        }
+
+        toast.className = `
+        flex items-center gap-3 p-4 bg-white border-l-4
+        ${border}
+        rounded-lg shadow-lg text-sm font-medium
+        will-change-transform
+    `;
+
+        toast.innerHTML = `
+        <span class="material-symbols-outlined ${iconColor}">
+            ${icon}
+        </span>
+        <span>${message}</span>
+    `;
+
+        /* ▶️ Slide IN */
+        toast.style.animation = "slideInRight 0.35s ease-out forwards";
+
+        const container = document.getElementById("toast-container");
+        container.appendChild(toast);
+
+        /* ⏳ Slide OUT */
+        setTimeout(() => {
+            toast.style.animation = "slideOutRight 0.3s ease-in forwards";
+
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 2600);
+    }
+
+    function updateUI() {
+        sections.forEach(sec => {
+            sec.classList.toggle("hidden", Number(sec.dataset.step) !== currentStep);
+        });
+
+        const percent = Math.round(((currentStep - 1) / totalSteps) * 100);
+        stepText.innerText = currentStep;
+        progressText.innerText = percent + "%";
+        progressBar.style.width = percent + "%";
+
+        // 🔒 Reset consent when entering Step 3
+        if (currentStep === 3) {
+            resetStep3Consent();
+        }
+    }
+
+    updateUI();
+
+    function validateStep1(showError = false) {
+        const username = usernameInput.value.trim();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+
+        if (!username || !email || password.length < 6 || !emailOtpVerified) {
+            step1NextBtn.disabled = true;
+            return false;
+        }
+
+        if (password !== confirmPassword) {
+            step1NextBtn.disabled = true;
+            if (showError) {
+                showToast("Passwords do not match", "error");
+            }
+            return false;
+        }
+
+        step1NextBtn.disabled = false;
+        return true;
+    }
+
+    sendEmailOtpBtn.addEventListener("click", async () => {
+        const email = emailInput.value.trim();
+        if (!email) return showToast("Enter email first", "error");
+
+        const checkRes = await fetch("/auth/login-check", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email })
+        });
+
+        const checkData = await checkRes.json();
+        if (checkData.exists) {
+            showToast("Account exists. Redirecting...");
+            return setTimeout(() => {
+                window.location.href = `/auth/login?email=${encodeURIComponent(email)}`;
+            }, 1200);
+        }
+
+        const res = await fetch("/auth/send-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            showToast("OTP sent to email");
+            sendEmailOtpBtn.disabled = true;
+            sendEmailOtpBtn.innerText = "Sent";
+        } else {
+            showToast(data.error || "OTP failed", "error");
+        }
+    });
+    verifyEmailOtpBtn.addEventListener("click", async () => {
+        const otp = emailOtpInput.value.trim();
+        if (otp.length !== 7) return showToast("Invalid OTP", "error");
+
+        const res = await fetch("/auth/verify-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                email: emailInput.value.trim(),
+                otp
+            })
+        });
+
+        const data = await res.json();
+        if (!data.success) return showToast("Invalid OTP", "error");
+
+        emailOtpVerified = true;
+        showToast("Email verified");
+
+        sendEmailOtpBtn.classList.add("hidden");
+        verifyEmailOtpBtn.classList.add("hidden");
+        emailOtpInput.closest(".relative").classList.add("hidden");
+        emailVerifiedBadge.classList.remove("hidden");
+
+        validateStep1();
+        step1NextBtn.disabled = false; // 🔥 KEY LINE
+    });
+
+    sendPhoneOtpBtn.addEventListener("click", async () => {
+        const phone = phoneInput.value.trim();
+        if (!phone) return showToast("Enter phone number", "error");
+
+        const res = await fetch("/auth/send-phone-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            showToast("OTP sent to phone");
+            sendPhoneOtpBtn.disabled = true;
+            sendPhoneOtpBtn.innerText = "Sent";
+        } else {
+            showToast(data.error || "OTP failed", "error");
+        }
+    });
+
+    verifyPhoneOtpBtn.addEventListener("click", async () => {
+        const otp = phoneOtpInput.value.trim().toUpperCase();
+        if (otp.length !== 7) return showToast("Invalid OTP", "error");
+
+
+        const res = await fetch("/auth/verify-phone-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                phone: phoneInput.value.trim(),
+                otp
+            })
+        });
+
+        const data = await res.json();
+        if (!data.success) return showToast("Invalid OTP", "error");
+
+        phoneOtpVerified = true;
+        showToast("Phone verified");
+
+        sendPhoneOtpBtn.classList.add("hidden");
+        verifyPhoneOtpBtn.classList.add("hidden");
+        phoneOtpInput.classList.add("hidden");
+
+        document.getElementById("phone-verified-badge").classList.remove("hidden");
+
+        step2NextBtn.disabled = false;
+
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!e.target.classList.contains("next-btn")) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        // 🔒 HARD VALIDATION FOR STEP 1
+        if (currentStep === 1) {
+            const valid = validateStep1(true);
+            if (!valid) return;
+        }
+
+        // 🔒 HARD VALIDATION FOR STEP 2
+        if (currentStep === 2 && !phoneOtpVerified) {
+            return showToast("Verify phone first", "error");
+        }
+
+        currentStep++;
+        updateUI();
+    });
+
+
+    document.addEventListener("click", (e) => {
+        if (!e.target.classList.contains("prev-btn")) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        currentStep--;
+        updateUI();
+    });
+    /* ===============================
+   STEP 3: Terms Checkbox Control
+   =============================== */
+
+    const agreeTermsCheckbox = document.getElementById("agree-terms");
+    const finalSubmitBtn = document.getElementById("final-submit");
+
+    /* Enable / Disable submit ONLY based on checkbox */
+    agreeTermsCheckbox.addEventListener("change", () => {
+        finalSubmitBtn.disabled = !agreeTermsCheckbox.checked;
+    });
+
+    /* Reset checkbox + button every time Step 3 is shown */
+    function resetStep3Consent() {
+        if (agreeTermsCheckbox && finalSubmitBtn) {
+            agreeTermsCheckbox.checked = false;
+            finalSubmitBtn.disabled = true;
+        }
+    }
+    document.getElementById("final-submit").addEventListener("click", async () => {
+        if (finalSubmitBtn.disabled) return;
+
+        const payload = {
+            username: usernameInput.value.trim(),
+            email: emailInput.value.trim(),
+            password: passwordInput.value,
+            phone: document.getElementById("phone")?.value || null,
+            first_name: document.getElementById("first-name")?.value || null,
+            last_name: document.getElementById("last-name")?.value || null,
+            age: document.getElementById("age")?.value || null,
+            gender: document.getElementById("gender")?.value || null,
+            reg_number: document.getElementById("reg-number")?.value || null,
+            address: document.getElementById("address")?.value || null,
+        };
+
+        try {
+            const res = await fetch("/auth/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+
+            if (!data.success) {
+                return showToast(data.error || "Registration failed", "error");
+            }
+
+            showToast("Registration successful 🎉");
+
+            setTimeout(() => {
+                window.location.href = "/auth/login";
+            }, 1200);
+
+        } catch (err) {
+            showToast("Server error. Please try again.", "error");
+        }
+    });
+
+
+</script>
+
+</html>

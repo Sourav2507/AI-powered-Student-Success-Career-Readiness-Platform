@@ -1,4 +1,4 @@
-from model.models import db, User
+from backend.app.model.models import db, User
 from werkzeug.security import generate_password_hash
 
 def setup_initial_data(app):
