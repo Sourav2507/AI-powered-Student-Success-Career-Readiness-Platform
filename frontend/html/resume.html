@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}
+Mentora · Resume Analyzer
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .view {
+        transition: opacity 0.35s ease, transform 0.35s ease;
+        will-change: opacity, transform;
+    }
+
+    .view-hidden-left {
+        opacity: 0;
+        transform: translateX(-30px);
+        pointer-events: none;
+    }
+
+    .view-hidden-right {
+        opacity: 0;
+        transform: translateX(30px);
+        pointer-events: none;
+    }
+
+    .view-active {
+        opacity: 1;
+        transform: translateX(0);
+        pointer-events: auto;
+    }
+
+    .toggle-btn {
+        transition: all 0.25s ease;
+    }
+</style>
+{% endblock %}
+
+{% block header %}
+<h2 class="text-2xl font-bold">
+    Resume Analyzer & Job Match
+</h2>
+{% endblock %}
+
+{% block content %}
+
+<!-- PAGE TOGGLE -->
+<section class="bg-white border rounded-xl px-6 py-4 mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="bg-gray-100 p-1.5 rounded-xl flex gap-1 shadow-inner">
+            <button id="btnResume"
+                class="toggle-btn px-5 py-2 rounded-lg bg-white text-primary font-semibold shadow-sm flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">description</span>
+                Resume Insights
+            </button>
+
+            <button id="btnJob"
+                class="toggle-btn px-5 py-2 rounded-lg text-text-secondary font-medium hover:text-text-primary flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">compare_arrows</span>
+                Job Match
+            </button>
+        </div>
+    </div>
+</section>
+
+<div class="relative min-h-[800px]">
+
+    <!-- ================= RESUME INSIGHTS ================= -->
+    <section id="resumeView" class="view view-active space-y-8 absolute inset-0">
+
+        <!-- UPLOAD -->
+        <div class="bg-white p-6 rounded-xl shadow border flex justify-between items-center gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-lg bg-primary-light flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined">description</span>
+                </div>
+                <div>
+                    <p class="font-semibold">Upload your resume</p>
+                    <p class="text-sm text-text-secondary">PDF or DOCX · Max 2MB</p>
+                </div>
+            </div>
+            <label class="cursor-pointer bg-primary text-white px-5 py-2.5 rounded-lg font-semibold">
+                Upload Resume
+                <input type="file" accept=".pdf,.doc,.docx" hidden />
+            </label>
+        </div>
+
+        <!-- SUMMARY -->
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-xl border shadow">
+                <h4 class="text-sm text-text-secondary uppercase font-semibold">Resume Score</h4>
+                <p class="text-3xl font-bold mt-2 text-primary">85%</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl border shadow">
+                <h4 class="text-sm text-text-secondary uppercase font-semibold">Experience Level</h4>
+                <p class="text-xl font-bold mt-2">Mid–Senior</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl border shadow">
+                <h4 class="text-sm text-text-secondary uppercase font-semibold">Primary Domain</h4>
+                <p class="text-xl font-bold mt-2">Product Design</p>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ================= JOB MATCH ================= -->
+    <section id="jobView" class="view view-hidden-right space-y-8 absolute inset-0">
+
+        <div class="bg-white p-6 rounded-xl shadow border space-y-4">
+            <input class="w-full rounded-lg border px-4 py-3" placeholder="Job Role">
+            <input class="w-full rounded-lg border px-4 py-3" placeholder="Company">
+            <textarea class="w-full rounded-lg border px-4 py-3 h-40 resize-none"
+                placeholder="Paste job description here..."></textarea>
+
+            <button id="analyzeBtn" class="w-full bg-primary text-white py-3 rounded-lg font-bold">
+                Analyze Match
+            </button>
+        </div>
+
+        <div id="jobResults" class="hidden bg-white p-6 rounded-xl shadow border">
+            <div class="text-4xl font-bold text-primary">78%</div>
+            <p class="text-text-secondary mt-1">Strong Match</p>
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const btnResume = document.getElementById("btnResume");
+    const btnJob = document.getElementById("btnJob");
+    const resumeView = document.getElementById("resumeView");
+    const jobView = document.getElementById("jobView");
+
+    btnResume.onclick = () => {
+        resumeView.className = "view view-active space-y-8 absolute inset-0";
+        jobView.className = "view view-hidden-right space-y-8 absolute inset-0";
+    };
+
+    btnJob.onclick = () => {
+        jobView.className = "view view-active space-y-8 absolute inset-0";
+        resumeView.className = "view view-hidden-left space-y-8 absolute inset-0";
+    };
+
+    document.getElementById("analyzeBtn")?.addEventListener("click", () => {
+        document.getElementById("jobResults").classList.remove("hidden");
+    });
+</script>
+{% endblock %}

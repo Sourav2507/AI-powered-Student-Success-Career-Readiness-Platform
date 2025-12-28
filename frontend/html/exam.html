@@ -1,219 +1,137 @@
-<!DOCTYPE html>
-<html lang="en">
-<link rel="icon" type="image/png" href="{{ url_for('static', filename='static/logo-transparent-png.png') }}">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Generate Examination Questions</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com" rel="preconnect" />
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings:
-                'FILL' 0,
-                'wght' 400,
-                'GRAD' 0,
-                'opsz' 24
-        }
-    </style>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#4913ec",
-                        "background-light": "#f6f6f8",
-                        "background-dark": "#151022",
-                        "text-light": "#1d2333",
-                        "text-light-secondary": "#5c6271",
-                        "teal-primary": "#14b8a6",
-                        "teal-primary-hover": "#0d9488",
-                    },
-                    fontFamily: {
-                        "display": ["Space Grotesk", "sans-serif"]
-                    },
-                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-                    boxShadow: {
-                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
-                    }
-                },
-            },
-        }
-    </script>
-</head>
+{% block title %}
+Mentora · Skill Quiz Generator
+{% endblock %}
 
-<body class="bg-background-light font-display text-text-light">
-    <div class="flex h-screen w-full flex-col">
-        <header
-            class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 bg-white px-4 sm:px-10 py-3 shadow-soft z-10">
-            <div class="flex items-center gap-4 text-text-light">
-                <div class="text-primary">
-                    <img src="{{ url_for('static', filename='static/logo-transparent-png.png') }}" alt="Mentora Logo"
-                        class="w-10 h-10 object-contain">
-                </div>
-                <h2 class="text-text-light text-lg font-bold leading-tight tracking-[-0.015em]">Mentora AI Quiz
-                    Generator</h2>
-            </div>
-            <div class="flex items-center gap-4">
-                <nav class="hidden sm:flex items-center gap-2">
-                    <a class="px-3 py-2 text-sm font-medium text-text-light-secondary hover:text-text-light transition-colors"
-                        href="#">Dashboard</a>
-                    <a class="px-3 py-2 text-sm font-medium text-text-light bg-gray-100 rounded-lg" href="#">Exams</a>
-                    <a class="px-3 py-2 text-sm font-medium text-text-light-secondary hover:text-text-light transition-colors"
-                        href="#">Students</a>
-                    <a class="px-3 py-2 text-sm font-medium text-text-light-secondary hover:text-text-light transition-colors"
-                        href="#">Analytics</a>
-                </nav>
-                <button
-                    class="flex items-center justify-center size-10 rounded-full hover:bg-gray-100 transition-colors">
-                    <span class="material-symbols-outlined text-text-light-secondary">person</span>
-                </button>
-            </div>
-        </header>
-        <main class="flex-1 overflow-y-auto px-4 pt-5 pb-8 sm:px-6 lg:px-8 flex justify-center">
-            <div class="w-full max-w-6xl">
-                <div class="text-center mb-10">
-                    {% if mode == "form" %}
-                    <h1 class="text-3xl sm:text-4xl font-bold text-text-light tracking-tight">
-                        Generate Examination Questions
-                    </h1>
-                    <p class="mt-3 text-base sm:text-lg text-text-light-secondary">
-                        Specify the topic and difficulty to create a new quiz for your students.
-                    </p>
-                    {% else %}
-                    <h1 class="text-3xl sm:text-4xl font-bold text-text-light tracking-tight">
-                        Exam Results
-                    </h1>
-                    <p class="mt-3 text-base sm:text-lg text-text-light-secondary">
-                        Here is your performance summary.
-                    </p>
-                    {% endif %}
+{% block header %}
+<h2 class="text-xl font-bold">AI Exam & Quiz Generator</h2>
+{% endblock %}
 
-                </div>
-                <div class="rounded-xl bg-white p-6 sm:p-8 shadow-soft border border-gray-100">
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-10">
 
-                    {% if mode == "form" %}
-                    <!-- ====================== -->
-                    <!--     FORM MODE          -->
-                    <!-- ====================== -->
-                    <form class="space-y-8" action="{{ url_for('user.generate_questions') }}" method="POST">
-
-                        <div class="space-y-4">
-                            <label class="block text-base font-semibold text-text-light" for="topic">Topic</label>
-                            <input
-                                class="w-full rounded-lg border border-gray-300 px-4 py-3 text-base text-text-light shadow-soft"
-                                id="topic" name="topic" placeholder="e.g., Introduction to Machine Learning" required
-                                type="text" />
-                        </div>
-
-                        <div class="space-y-4">
-                            <p class="block text-base font-semibold text-text-light">Difficulty</p>
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <label
-                                    class="flex items-center gap-3 rounded-lg border border-gray-200 p-4 cursor-pointer">
-                                    <input class="form-radio size-5 text-teal-primary" name="difficulty" value="easy"
-                                        type="radio" checked>
-                                    <span class="text-base font-medium">Easy</span>
-                                </label>
-
-                                <label
-                                    class="flex items-center gap-3 rounded-lg border border-gray-200 p-4 cursor-pointer">
-                                    <input class="form-radio size-5 text-teal-primary" name="difficulty" value="medium"
-                                        type="radio">
-                                    <span class="text-base font-medium">Medium</span>
-                                </label>
-
-                                <label
-                                    class="flex items-center gap-3 rounded-lg border border-gray-200 p-4 cursor-pointer">
-                                    <input class="form-radio size-5 text-teal-primary" name="difficulty" value="hard"
-                                        type="radio">
-                                    <span class="text-base font-medium">Hard</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="pt-6 border-t border-gray-200">
-                            <button
-                                class="flex w-full items-center justify-center gap-3 rounded-lg bg-teal-primary px-6 py-4 text-lg font-semibold text-white"
-                                type="submit">
-                                <span class="material-symbols-outlined">auto_awesome</span>
-                                <span>Generate Questions</span>
-                            </button>
-                        </div>
-
-                    </form>
-                    {% endif %}
-
-
-
-                    {% if mode == "result" %}
-                    <!-- ====================== -->
-                    <!--     RESULTS MODE       -->
-                    <!-- ====================== -->
-                    <div class="space-y-8">
-
-                        <h1 class="text-3xl font-bold text-center text-text-light">
-                            Your Score: {{ score }} / {{ total }}
-                        </h1>
-
-                        <table class="w-full border-collapse rounded-xl overflow-hidden shadow-soft">
-                            <thead class="bg-gray-100 text-left">
-                                <tr>
-                                    <th class="p-4 text-sm font-semibold text-text-light">Question</th>
-                                    <th class="p-4 text-sm font-semibold text-text-light">Correct Answer</th>
-                                    <th class="p-4 text-sm font-semibold text-text-light">Your Answer</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {% for r in results %}
-                                <tr class="border-b">
-                                    <td class="p-4 text-base font-medium text-text-light">
-                                        {{ r.question }}
-                                    </td>
-
-                                    <td class="p-4 text-base font-semibold text-green-600">
-                                        {{ r.correct }}
-                                    </td>
-
-                                    <td class="p-4 text-base font-semibold
-    {% if r.selected and r.selected == r.correct %}
-        text-green-600
-    {% else %}
-        text-red-600
-    {% endif %}
-">
-                                        {{ r.selected if r.selected else "None" }}
-                                    </td>
-
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-
-                        <a href="{{ url_for('user.exam') }}"
-                            class="block w-full text-center bg-teal-primary text-white py-3 rounded-lg font-semibold mt-6">
-                            Generate New Exam
-                        </a>
-
-                    </div>
-
-                    {% endif %}
-
-                </div>
-
-            </div>
-        </main>
+    <!-- PAGE TITLE -->
+    <div class="text-center">
+        {% if mode == "form" %}
+        <h1 class="text-3xl font-bold">Generate Examination Questions</h1>
+        <p class="mt-2 text-text-secondary">
+            Specify the topic and difficulty to create a new quiz.
+        </p>
+        {% else %}
+        <h1 class="text-3xl font-bold">Exam Results</h1>
+        <p class="mt-2 text-text-secondary">
+            Here is your performance summary.
+        </p>
+        {% endif %}
     </div>
 
-</body>
+    <!-- CARD -->
+    <div class="bg-white rounded-xl p-6 md:p-8 shadow-soft border border-slate-100">
 
-</html>
+        {% if mode == "form" %}
+        <!-- ================= FORM MODE ================= -->
+        <form class="space-y-8"
+              action="{{ url_for('user.generate_questions') }}"
+              method="POST">
+
+            <!-- TOPIC -->
+            <div class="space-y-2">
+                <label class="font-semibold">Topic</label>
+                <input
+                    name="topic"
+                    required
+                    placeholder="e.g. Introduction to Machine Learning"
+                    class="w-full rounded-lg border px-4 py-3 focus:border-primary focus:ring-primary" />
+            </div>
+
+            <!-- DIFFICULTY -->
+            <div class="space-y-3">
+                <label class="font-semibold">Difficulty</label>
+                <div class="grid sm:grid-cols-3 gap-4">
+
+                    <label class="flex items-center gap-3 border rounded-lg p-4 cursor-pointer">
+                        <input type="radio" name="difficulty" value="easy" checked
+                               class="form-radio text-primary">
+                        <span>Easy</span>
+                    </label>
+
+                    <label class="flex items-center gap-3 border rounded-lg p-4 cursor-pointer">
+                        <input type="radio" name="difficulty" value="medium"
+                               class="form-radio text-primary">
+                        <span>Medium</span>
+                    </label>
+
+                    <label class="flex items-center gap-3 border rounded-lg p-4 cursor-pointer">
+                        <input type="radio" name="difficulty" value="hard"
+                               class="form-radio text-primary">
+                        <span>Hard</span>
+                    </label>
+
+                </div>
+            </div>
+
+            <!-- SUBMIT -->
+            <div class="pt-6 border-t">
+                <button type="submit"
+                        class="w-full flex items-center justify-center gap-2
+                               bg-primary text-white py-3 rounded-lg font-semibold
+                               hover:bg-primary-hover transition">
+                    <span class="material-symbols-outlined">auto_awesome</span>
+                    Generate Questions
+                </button>
+            </div>
+
+        </form>
+        {% endif %}
+
+        {% if mode == "result" %}
+        <!-- ================= RESULT MODE ================= -->
+        <div class="space-y-8">
+
+            <h2 class="text-2xl font-bold text-center">
+                Your Score: {{ score }} / {{ total }}
+            </h2>
+
+            <div class="overflow-x-auto">
+                <table class="w-full border rounded-xl overflow-hidden">
+                    <thead class="bg-slate-100">
+                        <tr>
+                            <th class="p-4 text-left">Question</th>
+                            <th class="p-4 text-left">Correct</th>
+                            <th class="p-4 text-left">Your Answer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in results %}
+                        <tr class="border-t">
+                            <td class="p-4">{{ r.question }}</td>
+                            <td class="p-4 text-success font-semibold">
+                                {{ r.correct }}
+                            </td>
+                            <td class="p-4 font-semibold
+                                {% if r.selected and r.selected == r.correct %}
+                                    text-success
+                                {% else %}
+                                    text-danger
+                                {% endif %}">
+                                {{ r.selected if r.selected else "None" }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <a href="{{ url_for('user.exam') }}"
+               class="block text-center bg-primary text-white py-3 rounded-lg font-semibold">
+                Generate New Exam
+            </a>
+
+        </div>
+        {% endif %}
+
+    </div>
+
+</div>
+{% endblock %}

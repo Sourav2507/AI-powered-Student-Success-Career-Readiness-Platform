@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}
+Mentora · Dashboard
+{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block header %}
+<h1 class="text-xl font-bold text-text-primary leading-tight">
+    Welcome back, Alex 👋
+</h1>
+<p class="text-xs text-text-secondary hidden sm:block">
+    Your personalized academic & career insights
+</p>
+{% endblock %}
+{% block content %}
+
+<!-- SUMMARY CARDS -->
+<section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
+    <!-- Predicted CGPA -->
+    <div class="bg-background-card p-5 rounded-xl border border-slate-100 shadow-soft">
+        <div class="flex justify-between mb-2">
+            <span class="text-sm text-text-secondary">Predicted CGPA</span>
+            <span class="text-xs text-success bg-success-bg px-2 py-0.5 rounded-full">+0.2</span>
+        </div>
+        <div class="text-3xl font-bold">3.85</div>
+    </div>
+
+    <!-- Academic Risk -->
+    <div class="bg-background-card p-5 rounded-xl border border-slate-100 shadow-soft">
+        <div class="text-sm text-text-secondary">Academic Risk</div>
+        <div class="text-lg font-bold text-success mt-2">Low Risk</div>
+    </div>
+
+    <!-- Career Readiness -->
+    <div class="bg-background-card p-5 rounded-xl border border-slate-100 shadow-soft">
+        <div class="text-sm text-text-secondary">Career Readiness</div>
+        <div class="text-3xl font-bold mt-2">72%</div>
+    </div>
+
+    <!-- Mental Wellness -->
+    <div class="bg-background-card p-5 rounded-xl border border-slate-100 shadow-soft">
+        <div class="text-sm text-text-secondary">Mental Wellness</div>
+        <div class="text-lg font-bold mt-2">Good</div>
+    </div>
+</section>
+
+<!-- CHARTS -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+    <div class="lg:col-span-2 bg-background-card p-6 rounded-xl border shadow-soft">
+        <h3 class="font-bold mb-4">CGPA Prediction Trend</h3>
+        <div class="h-64">
+            <canvas id="cgpaChart"></canvas>
+        </div>
+    </div>
+
+    <div class="bg-background-card p-6 rounded-xl border shadow-soft">
+        <h3 class="font-bold mb-4">Skill Readiness</h3>
+        <div class="h-64">
+            <canvas id="skillsChart"></canvas>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // CGPA Chart
+    new Chart(document.getElementById('cgpaChart'), {
+        type: 'line',
+        data: {
+            labels: ['Sem 1','Sem 2','Sem 3','Sem 4','Sem 5','Sem 6'],
+            datasets: [{
+                data: [3.4,3.5,3.65,3.72,3.8,3.85],
+                borderColor: '#14b8a6',
+                fill: true,
+                backgroundColor: 'rgba(20,184,166,0.15)',
+                tension: 0.4
+            }]
+        },
+        options: { plugins: { legend: { display: false } } }
+    });
+
+    // Skills Chart
+    new Chart(document.getElementById('skillsChart'), {
+        type: 'radar',
+        data: {
+            labels: ['Tech','Comm','Problem Solving','Confidence','Leadership'],
+            datasets: [{
+                data: [85,65,90,70,60],
+                backgroundColor: 'rgba(20,184,166,0.2)',
+                borderColor: '#14b8a6'
+            }]
+        },
+        options: { plugins: { legend: { display: false } } }
+    });
+</script>
+{% endblock %}

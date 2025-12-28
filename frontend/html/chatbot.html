@@ -1,341 +1,221 @@
-<!DOCTYPE html>
-<html lang="en">
-<link rel="icon" type="image/png" href="{{ url_for('static', filename='static/logo-transparent-png.png') }}">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Mentora Chatbot Page</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com" rel="preconnect" />
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings:
-                'FILL' 0,
-                'wght' 400,
-                'GRAD' 0,
-                'opsz' 24
+{% block title %}
+Mentora · AI Chatbot
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Improve table rendering inside chat */
+    .prose table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+    }
+
+    .prose th,
+    .prose td {
+        border: 1px solid #e5e7eb;
+        padding: 8px 12px;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    .prose th {
+        background: #f9fafb;
+        font-weight: 600;
+    }
+
+    .prose p {
+        margin: 0.4rem 0;
+        line-height: 1.5;
+    }
+
+    /* Thinking dots */
+    .dots span {
+        width: 6px;
+        height: 6px;
+        background: #14b8a6;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 4px;
+        animation: blink 1.4s infinite both;
+    }
+
+    .dots span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .dots span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes blink {
+        0% {
+            opacity: .2;
         }
 
-        /* Improve table rendering inside chat */
-        .prose table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-            table-layout: auto;
+        20% {
+            opacity: 1;
         }
 
-        .prose th,
-        .prose td {
-            border: 1px solid #e5e7eb;
-            /* gray-200 */
-            padding: 8px 12px;
-            text-align: left;
-            vertical-align: top;
+        100% {
+            opacity: .2;
+        }
+    }
+
+    .thinking-text {
+        font-size: 14px;
+        color: #5c6271;
+        animation: fadeText 1.4s infinite linear;
+    }
+
+    @keyframes fadeText {
+
+        0%,
+        100% {
+            opacity: 0.3;
         }
 
-        .prose th {
-            background: #f9fafb;
-            /* gray-50 */
-            font-weight: 600;
+        50% {
+            opacity: 1;
         }
+    }
+</style>
+{% endblock %}
 
-        .prose tr:nth-child(even) {
-            background: #fcfcfc;
-        }
+{% block header %}
+<h2 class="text-xl font-bold">Mentora AI Assistant</h2>
+{% endblock %}
 
-        /* Fix markdown spacing inside chat */
-        .prose p {
-            margin: 0.4rem 0;
-            line-height: 1.5;
-        }
+{% block content %}
+<div class="flex flex-col h-full">
 
-        /* Three dots animation */
-        .dots span {
-            width: 6px;
-            height: 6px;
-            background: #14b8a6;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 4px;
-            animation: blink 1.4s infinite both;
-        }
+    <!-- CHAT MESSAGES -->
+    <main id="chatContainer" class="flex-1 overflow-y-auto px-4 py-6">
+        <div class="max-w-5xl mx-auto space-y-4">
 
-        .dots span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
+            {% raw %}
+            <div v-for="msg in messages" :key="msg.time" class="flex gap-4"
+                :class="msg.sender === 'user' ? 'justify-end' : ''">
 
-        .dots span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
+                <!-- MESSAGE -->
+                <div class="flex flex-col gap-1" :class="msg.sender === 'user' ? 'items-end' : ''">
 
-        @keyframes blink {
-            0% {
-                opacity: .2;
-            }
+                    <div :class="msg.sender === 'user'
+                        ? 'bg-primary text-white p-4 rounded-2xl rounded-br-sm max-w-[75%]'
+                        : 'bg-white border p-4 rounded-2xl rounded-bl-sm max-w-[75%]'">
 
-            20% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: .2;
-            }
-        }
-
-        /* Blinking "Thinking..." text */
-        .thinking-text {
-            font-size: 14px;
-            color: #5c6271;
-            animation: fadeText 1.4s infinite linear;
-        }
-
-        @keyframes fadeText {
-
-            0%,
-            100% {
-                opacity: 0.3;
-            }
-
-            50% {
-                opacity: 1;
-            }
-        }
-    </style>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#4913ec",
-                        "background-light": "#f6f6f8",
-                        "background-dark": "#151022",
-                        "text-light": "#1d2333",
-                        "text-light-secondary": "#5c6271",
-                        "teal-primary": "#14b8a6",
-                        "teal-primary-hover": "#0d9488",
-                    },
-                    fontFamily: {
-                        "display": ["Space Grotesk", "sans-serif"]
-                    },
-                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-                    boxShadow: {
-                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
-                    }
-                },
-            },
-        }
-    </script>
-</head>
-
-<body class="bg-background-light font-display text-text-light">
-    <div class="flex h-screen w-full flex-col">
-        <header
-            class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 bg-white px-4 sm:px-10 py-3 shadow-soft z-10">
-
-            <div class="flex items-center gap-4 text-text-light">
-                <div class="text-primary">
-                    <img src="{{ url_for('static', filename='static/logo-transparent-png.png') }}" alt="Mentora Logo"
-                        class="w-10 h-10 object-contain">
-                </div>
-
-                <h2 class="text-text-light text-lg font-bold leading-tight tracking-[-0.015em]">Mentora Assitant</h2>
-            </div>
-
-
-            <div class="flex items-center gap-4">
-                <button
-                    class="flex items-center justify-center size-10 rounded-full hover:bg-gray-100 transition-colors">
-                    <span class="material-symbols-outlined text-text-light-secondary">more_vert</span>
-                </button>
-            </div>
-        </header>
-        <main id="chatContainer" class="flex-1 overflow-y-auto px-2 py-4 sm:px-4 lg:px-6">
-            <div class="mx-auto max-w-[1200px] space-y-0 px-2">
-
-                {% raw %}
-                <!-- Loop starts -->
-                <div v-for="msg in messages" :key="msg.time" class="flex gap-4"
-                    :class="msg.sender === 'user' ? 'justify-end' : ''">
-                    {% endraw %}
-
-                    <!-- BOT ICON -->
-                    <div v-if="msg.sender === 'bot'"
-                        class="flex size-10 items-center justify-center rounded-full bg-teal-50 text-teal-primary border border-teal-200 flex-shrink-0">
-                        <img src="{{ url_for('static', filename='static/logo-transparent-png.png') }}"
-                            class="w-8 h-8 object-contain" alt="Mentora Logo">
+                        <div class="prose prose-sm max-w-none" v-html="msg.content"></div>
                     </div>
 
-                    {% raw %}
-                    <!-- Message bubble -->
-                    <div class="flex flex-col gap-2" :class="msg.sender === 'user' ? 'items-end' : ''">
-                        <div
-                            :class="msg.sender === 'user'
-                    ? 'bg-teal-primary text-white p-4 shadow-soft rounded-2xl rounded-br-sm max-w-[75%] mt-[-4px]'
-                    : 'bg-white border border-gray-200 p-4 shadow-soft rounded-2xl rounded-bl-sm max-w-[75%] mt-[-4px]'">
+                    <span class="text-xs text-gray-400">{{ msg.time }}</span>
+                </div>
+            </div>
 
-                            <div class="prose prose-sm max-w-none" v-html="msg.content"></div>
+            <!-- THINKING -->
+            <div v-if="isThinking" class="flex gap-4">
+                <div class="bg-white border p-4 rounded-2xl max-w-[75%]">
+                    <div class="flex items-center gap-3">
+                        <div class="dots">
+                            <span></span><span></span><span></span>
                         </div>
-                        <span class="text-xs text-gray-400 pl-1">{{ msg.time }}</span>
+                        <span class="thinking-text">Thinking</span>
                     </div>
-
-                </div>
-                <!-- Loop ends -->
-
-
-                <!-- ⭐⭐ INSERT TYPING INDICATOR RIGHT HERE ⭐⭐ -->
-                <div v-if="isThinking" class="flex gap-4 items-start">
-
-                    <div class="bg-white border border-gray-200 p-4 shadow-soft rounded-2xl rounded-bl-sm max-w-[75%]">
-                        <div class="flex items-center gap-3">
-
-                            <!-- 3 blinking dots -->
-                            <div class="dots flex gap-1">
-                                <span class="dot"></span>
-                                <span class="dot"></span>
-                                <span class="dot"></span>
-                            </div>
-
-                            <!-- Blinking text -->
-                            <span class="thinking-text">Thinking</span>
-
-                        </div>
-                    </div>
-
-                </div>
-                <!-- ⭐⭐ END TYPING INDICATOR ⭐⭐ -->
-
-
-                {% endraw %}
-
-            </div>
-        </main>
-
-        <footer class="bg-background-light p-4 sm:p-6 border-t border-gray-200">
-            <div class="mx-auto max-w-3xl">
-                <div class="relative flex items-center">
-                    <input v-model="userMessage" @keyup.enter="sendMessage"
-                        class="w-full rounded-full border-gray-300 py-3 pl-5 pr-14 text-base focus:border-teal-primary focus:ring-teal-primary shadow-soft transition-all"
-                        placeholder="Type your message here..." type="text" />
-
-                    <button @click="sendMessage"
-                        class="absolute right-2 flex size-10 cursor-pointer items-center justify-center rounded-full bg-teal-primary text-white transition-colors hover:bg-teal-primary-hover">
-                        <span class="material-symbols-outlined">send</span>
-                    </button>
                 </div>
             </div>
-        </footer>
+            {% endraw %}
 
-    </div>
+        </div>
+    </main>
 
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <!-- INPUT -->
+    <footer class="border-t bg-white p-4">
+        <div class="max-w-3xl mx-auto relative">
+            <input v-model="userMessage" @keyup.enter="sendMessage" class="w-full rounded-full border py-3 pl-5 pr-14
+                          focus:border-primary focus:ring-primary" placeholder="Type your message..." />
 
-    <script>
-        const { createApp } = Vue;
+            <button @click="sendMessage" class="absolute right-2 top-1/2 -translate-y-1/2
+                           w-10 h-10 rounded-full bg-primary text-white">
+                <span class="material-symbols-outlined">send</span>
+            </button>
+        </div>
+    </footer>
 
-        createApp({
-            data() {
-                return {
-                    userMessage: "",
-                    isThinking: false,
-                    messages: [
-                        {
-                            sender: "bot",
-                            content: "Hello! I'm the Mentora Assistant. I'm here to help you with personalized learning paths, career matching, and much more. How can I assist you today?",
-                            time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-                        }
-                    ]
-                };
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+
+<script>
+    const { createApp } = Vue;
+
+    createApp({
+        data() {
+            return {
+                userMessage: "",
+                isThinking: false,
+                messages: []
+            };
+        },
+
+        mounted() {
+            this.isThinking = true;
+
+            setTimeout(() => {
+                this.isThinking = false;
+                this.messages.push({
+                    sender: "bot",
+                    content: "Hello! I'm the Mentora Assistant. How can I help you today?",
+                    time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                });
+                this.scrollToBottom();
+            }, 1200);
+        },
+
+        methods: {
+            scrollToBottom() {
+                const c = document.getElementById("chatContainer");
+                c && c.scrollTo({ top: c.scrollHeight, behavior: "smooth" });
             },
 
-            methods: {
-                scrollToBottom() {
-                    const container = document.getElementById("chatContainer");
-                    if (container) {
-                        container.scrollTo({
-                            top: container.scrollHeight,
-                            behavior: "smooth"
-                        });
-                    }
-                }
-                ,
+            async sendMessage() {
+                if (!this.userMessage.trim()) return;
 
-                async sendMessage() {
-                    if (!this.userMessage.trim()) return;
+                this.messages.push({
+                    sender: "user",
+                    content: this.userMessage,
+                    time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                });
 
-                    // Push user message
+                const msg = this.userMessage;
+                this.userMessage = "";
+                this.isThinking = true;
+                this.scrollToBottom();
+
+                try {
+                    const res = await fetch("/user/chat", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ message: msg })
+                    });
+
+                    const data = await res.json();
+                    this.isThinking = false;
+
                     this.messages.push({
-                        sender: "user",
-                        content: this.userMessage,
+                        sender: "bot",
+                        content: data?.choices?.[0]?.message?.content || "Sorry, I didn’t get that.",
                         time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
                     });
 
-                    this.$nextTick(() => this.scrollToBottom());
-
-                    let msgToSend = this.userMessage;
-                    this.userMessage = "";
-
-                    // Show typing animation
-                    this.isThinking = true;
-                    this.$nextTick(() => this.scrollToBottom());
-
-                    try {
-                        const res = await fetch("/user/chat", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                message: msgToSend,
-                                history: this.messages.slice(-10)   // send last 10 messages only
-                            })
-
-                        });
-
-                        const data = await res.json();
-                        const reply = data?.choices?.[0]?.message?.content || "Sorry, I didn't understand that.";
-
-                        // Hide typing animation
-                        this.isThinking = false;
-
-                        // Push bot message
-                        this.messages.push({
-                            sender: "bot",
-                            content: reply,
-                            time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-                        });
-
-                        this.$nextTick(() => this.scrollToBottom());
-
-                    } catch (error) {
-
-                        this.isThinking = false;
-
-                        this.messages.push({
-                            sender: "bot",
-                            content: "⚠ Error contacting the server.",
-                            time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-                        });
-
-                        this.$nextTick(() => this.scrollToBottom());
-                    }
+                    this.scrollToBottom();
+                } catch {
+                    this.isThinking = false;
                 }
-
             }
-        }).mount("body");
-    </script>
-
-
-
-</body>
-
-</html>
+        }
+    }).mount("#main-content");
+</script>
+{% endblock %}

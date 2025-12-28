@@ -19,15 +19,32 @@ def profile():
 
 @user.route('/chatbot', methods=['GET'])
 def chatbot():
-    return render_template('chatbot.html')
+    return render_template('chatbot.html',
+    active_menu="learning-tools",
+    active_submenu="chatbot")
 
 @user.route('/ppt_gen', methods=['GET'])
 def ppt_gen():
-    return render_template('ppt_gen.html')
+    return render_template('ppt_gen.html',
+    active_menu="learning-tools",
+    active_submenu="ppt")
 
 @user.route('/exam', methods=['GET'])
 def exam():
-    return render_template('exam.html', mode="form")
+    return render_template('exam.html', mode="form",
+    active_menu="learning-tools",
+    active_submenu="exam")
+
+@user.route('/dashboard', methods=['GET'])
+def dashboard():
+    return render_template('user_db.html',
+    active_menu="dashboard")
+
+@user.route('/resume_analyzer', methods=['GET'])
+def resume_analyzer():
+    return render_template('resume.html',
+    active_menu="learning-tools",
+    active_submenu="resume")
 
 @user.route("/questions")
 def questions():
@@ -43,7 +60,9 @@ def questions():
     )
 
 
-
+@user.route('/base')
+def base():
+    return render_template('base.html', active_menu ='learning-tools',active_submenu='resume')
 
 
 
@@ -230,5 +249,7 @@ def submit_exam():
         mode="result",
         results=results,
         score=score,
-        total=len(questions)
+        total=len(questions),
+    active_menu="learning-tools",
+    active_submenu="exam"
     )

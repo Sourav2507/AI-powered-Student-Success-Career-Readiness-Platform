@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>{% block title %}Mentora{% endblock %}</title>
+
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='static/logo-transparent-png.png') }}">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    {% block extra_head %}{% endblock %}
+
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24
+        }
+
+        .material-symbols-outlined.filled {
+            font-variation-settings:
+                'FILL' 1,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24
+        }
+
+        .sidebar-collapsed {
+            width: 6rem !important;
+            /* 48px icon + 48px button */
+            border-right: none !important;
+        }
+
+        nav a,
+        nav button {
+            cursor: pointer;
+        }
+
+        nav a:hover {
+            transform: translateX(2px);
+            transition: transform 0.15s ease;
+        }
+
+        .sidebar-collapsed .sidebar-text {
+            display: none;
+        }
+
+        .sidebar-collapsed nav {
+            width: 3rem;
+        }
+
+        .sidebar-collapsed nav a {
+            justify-content: center;
+        }
+
+        .sidebar-collapsed h2 {
+            display: none;
+        }
+
+        .group[aria-expanded="true"] .submenu-chevron {
+            transform: rotate(180deg);
+            transition: transform 0.2s ease;
+        }
+
+        .sidebar-collapsed .material-symbols-outlined {
+            margin-right: 0 !important;
+        }
+
+        .submenu {
+            transition: all 0.25s ease;
+        }
+
+        .submenu {
+            overflow: hidden;
+            max-height: 500px;
+            /* large enough for submenu */
+            opacity: 1;
+            transform: translateY(0);
+            transition:
+                max-height 0.3s ease,
+                opacity 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .submenu-collapsed {
+            max-height: 0;
+            opacity: 0;
+            transform: translateY(-4px);
+            pointer-events: none;
+        }
+
+
+        .sidebar-collapsed nav a,
+        .sidebar-collapsed nav button {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            justify-content: center !important;
+        }
+
+        .sidebar-collapsed nav a span.material-symbols-outlined,
+        .sidebar-collapsed nav button span.material-symbols-outlined {
+            margin-right: 0 !important;
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#14b8a6",
+                        "primary-hover": "#0d9488",
+                        "primary-light": "#f0fdfa",
+                        "background-light": "#f8fafc",
+                        "background-card": "#ffffff",
+                        "text-primary": "#0f172a",
+                        "text-secondary": "#64748b",
+                        "success": "#10b981",
+                        "success-bg": "#d1fae5",
+                        "warning": "#f59e0b",
+                        "warning-bg": "#fef3c7",
+                        "danger": "#ef4444",
+                        "danger-bg": "#fee2e2",
+                        "info": "#3b82f6",
+                        "info-bg": "#dbeafe"
+                    },
+                    fontFamily: {
+                        "sans": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "full": "9999px" },
+                    boxShadow: {
+                        'soft': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                        'medium': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06)',
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-background-light font-sans text-text-primary h-screen flex overflow-hidden">
+    <aside id="sidebar" class="w-72 bg-background-card border-r border-slate-200 hidden md:flex
+         h-full shrink-0 z-10 transition-all duration-300">
+
+        <!-- MAIN SIDEBAR CONTENT -->
+        <div class="flex flex-col flex-1">
+
+            <!-- Brand -->
+            <div class="flex items-center gap-4 px-4 py-4">
+                <img src="{{ url_for('static', filename='static/logo-transparent-png.png') }}" alt="Mentora Logo"
+                    class="w-16 h-16 object-contain">
+                <h2 class="sidebar-text text-lg font-bold leading-tight tracking-[-0.015em]">
+                    Mentora
+                </h2>
+
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-1">
+
+                <!-- Dashboard -->
+                <a href="/user/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-lg
+       {{ 'bg-primary-light text-primary font-medium'
+          if active_menu=='dashboard'
+          else 'text-text-secondary hover:bg-slate-50' }}">
+                    <span class="material-symbols-outlined filled">dashboard</span>
+                    <span class="sidebar-text">Dashboard</span>
+                </a>
+
+                <!-- Academics -->
+                <a href="/user/academics" class="flex items-center gap-3 px-3 py-2.5 rounded-lg
+       {{ 'bg-primary-light text-primary font-medium'
+          if active_menu=='academics'
+          else 'text-text-secondary hover:bg-slate-50' }}">
+                    <span class="material-symbols-outlined">menu_book</span>
+                    <span class="sidebar-text">Academics</span>
+                </a>
+
+                <!-- Career -->
+                <a href="/user/career" class="flex items-center gap-3 px-3 py-2.5 rounded-lg
+       {{ 'bg-primary-light text-primary font-medium'
+          if active_menu=='career'
+          else 'text-text-secondary hover:bg-slate-50' }}">
+                    <span class="material-symbols-outlined">work_outline</span>
+                    <span class="sidebar-text">Career</span>
+                </a>
+
+                <!-- Learning Tools -->
+                <div class="space-y-1">
+
+                    <!-- Parent -->
+                    <button class="learning-toggle flex items-center gap-3 px-3 py-2.5 w-full rounded-lg
+            {{ 'bg-primary-light text-primary'
+               if active_menu=='learning-tools'
+               else 'text-text-secondary hover:bg-slate-50' }}" data-menu="learning-tools"
+                        aria-expanded="{{ 'true' if active_menu=='learning-tools' else 'false' }}">
+
+                        <span class="material-symbols-outlined">construction</span>
+                        <span class="sidebar-text">Learning Tools</span>
+                        <span class="material-symbols-outlined sidebar-text ml-auto text-sm submenu-chevron">
+                            expand_more
+                        </span>
+                    </button>
+
+                    <!-- Submenu -->
+                    <div class="submenu ml-10 space-y-1
+             {{ '' if active_menu=='learning-tools' else 'submenu-collapsed' }}" data-submenu="learning-tools">
+
+                        <a href="/user/resume_analyzer" class="flex items-center gap-2 px-3 py-2 text-sm rounded-lg
+               {{ 'bg-primary-light text-primary'
+                  if active_submenu=='resume'
+                  else 'text-text-secondary hover:bg-slate-50' }}">
+                            <span class="material-symbols-outlined text-sm filled">description</span>
+                            <span class="sidebar-text">Resume Analyzer</span>
+                        </a>
+
+                        <a href="/user/exam" class="flex items-center gap-2 px-3 py-2 text-sm rounded-lg
+               {{ 'bg-primary-light text-primary'
+                  if active_submenu=='exam'
+                  else 'text-text-secondary hover:bg-slate-50' }}">
+                            <span class="material-symbols-outlined text-sm">quiz</span>
+                            <span class="sidebar-text">Skill Quizzes</span>
+                        </a>
+
+                        <a href="/user/chatbot" class="flex items-center gap-2 px-3 py-2 text-sm rounded-lg
+               {{ 'bg-primary-light text-primary'
+                  if active_submenu=='chatbot'
+                  else 'text-text-secondary hover:bg-slate-50' }}">
+                            <span class="material-symbols-outlined text-sm">smart_toy</span>
+                            <span class="sidebar-text">AI Chatbot</span>
+                        </a>
+
+                        <a href="/user/ppt_gen" class="flex items-center gap-2 px-3 py-2 text-sm rounded-lg
+               {{ 'bg-primary-light text-primary'
+                  if active_submenu=='ppt'
+                  else 'text-text-secondary hover:bg-slate-50' }}">
+                            <span class="material-symbols-outlined text-sm">slideshow</span>
+                            <span class="sidebar-text">PPT Generator</span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <!-- Mental Health -->
+                <a href="/user/mental_health" class="flex items-center gap-3 px-3 py-2.5 rounded-lg
+       {{ 'bg-primary-light text-primary font-medium'
+          if active_menu=='mental-health'
+          else 'text-text-secondary hover:bg-slate-50' }}">
+                    <span class="material-symbols-outlined">self_improvement</span>
+                    <span class="sidebar-text">Mental Health</span>
+                </a>
+
+                <!-- Analytics -->
+                <a href="/user/analytics" class="flex items-center gap-3 px-3 py-2.5 rounded-lg
+       {{ 'bg-primary-light text-primary font-medium'
+          if active_menu=='analytics'
+          else 'text-text-secondary hover:bg-slate-50' }}">
+                    <span class="material-symbols-outlined">analytics</span>
+                    <span class="sidebar-text">Analytics</span>
+                </a>
+
+            </nav>
+
+
+            <!-- Bottom -->
+            <div class="p-3 border-t border-slate-100 space-y-1">
+                <a class="flex items-center gap-3 px-3 py-2.5 text-text-secondary hover:bg-slate-50 rounded-lg">
+                    <span class="material-symbols-outlined">person</span>
+                    <span class="sidebar-text">Profile</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 text-text-secondary hover:bg-slate-50 rounded-lg">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span class="sidebar-text">Settings</span>
+                </a>
+            </div>
+        </div>
+        <div class="w-12 flex items-center justify-center bg-background-card
+            shrink-0">
+
+
+            <button id="toggleSidebar" class="w-9 h-9 rounded-lg
+             bg-primary-light text-primary
+             hover:bg-primary hover:text-white
+             transition-all shadow-soft flex items-center justify-center">
+
+                <span class="material-symbols-outlined text-lg">
+                    chevron_left
+                </span>
+            </button>
+        </div>
+
+    </aside>
+
+    <main id="main-content" class="flex-1 flex flex-col h-full overflow-hidden relative transition-all duration-300">
+        <header
+            class="h-16 bg-background-card border-b border-slate-200 flex items-center justify-between px-6 shrink-0 z-10">
+            <div class="flex items-center md:hidden mr-4">
+                <button class="text-text-secondary hover:text-primary">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+            </div>
+            <div>
+                {% block header %}
+                {% endblock %}
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="relative p-2 text-text-secondary hover:bg-slate-50 rounded-full transition-colors">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span class="absolute top-2 right-2 w-2 h-2 bg-danger rounded-full border border-white"></span>
+                </button>
+                <div class="flex items-center gap-3 cursor-pointer pl-2 border-l border-slate-200">
+                    <div
+                        class="w-9 h-9 bg-primary-light text-primary rounded-full flex items-center justify-center font-bold text-sm">
+                        AS</div>
+                    <span class="material-symbols-outlined text-text-secondary text-xl">expand_more</span>
+                </div>
+            </div>
+        </header>
+        <section class="flex-1 overflow-y-auto p-6">
+            {% block content %}
+            {% endblock %}
+        </section>
+
+    </main>
+
+    <script>
+        const sidebar = document.getElementById("sidebar");
+        const toggleBtn = document.getElementById("toggleSidebar");
+        const toggleIcon = toggleBtn.querySelector("span");
+
+        const menuToggles = document.querySelectorAll(".learning-toggle");
+        const submenus = document.querySelectorAll(".submenu");
+
+        function collapseAllSubmenus() {
+            submenus.forEach(sm => sm.classList.add("submenu-collapsed"));
+            menuToggles.forEach(btn => btn.setAttribute("aria-expanded", "false"));
+        }
+
+        // Sidebar collapse / expand
+        toggleBtn.addEventListener("click", () => {
+            const isCollapsed = sidebar.classList.toggle("sidebar-collapsed");
+
+            if (isCollapsed) {
+                toggleIcon.textContent = "chevron_right";
+                collapseAllSubmenus();
+            } else {
+                toggleIcon.textContent = "chevron_left";
+            }
+        });
+
+        // Parent menu click logic
+        menuToggles.forEach(btn => {
+            btn.addEventListener("click", () => {
+                const key = btn.dataset.menu;
+                const submenu = document.querySelector(`[data-submenu="${key}"]`);
+                const expanded = btn.getAttribute("aria-expanded") === "true";
+
+                // If sidebar is collapsed → expand sidebar first
+                if (sidebar.classList.contains("sidebar-collapsed")) {
+                    sidebar.classList.remove("sidebar-collapsed");
+                    toggleIcon.textContent = "chevron_left";
+                }
+
+                // Close others
+                collapseAllSubmenus();
+
+                // Toggle this submenu
+                if (!expanded) {
+                    submenu.classList.remove("submenu-collapsed");
+                    btn.setAttribute("aria-expanded", "true");
+                }
+            });
+        });
+
+    </script>
+    {% block extra_scripts %}{% endblock %}
+
+</body>
+
+</html>

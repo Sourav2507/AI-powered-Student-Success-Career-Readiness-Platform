@@ -1,376 +1,228 @@
-<!DOCTYPE html>
-<html lang="en">
-<link rel="icon" type="image/png" href="{{ url_for('static', filename='static/logo-transparent-png.png') }}">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>AI PPT Generation Tool</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com" rel="preconnect" />
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings:
-                'FILL' 0,
-                'wght' 400,
-                'GRAD' 0,
-                'opsz' 24
-        }
+{% block title %}
+Mentora · AI PPT Generator
+{% endblock %}
 
-        .dot {
-            width: 6px;
-            height: 6px;
-            background: #14b8a6;
-            border-radius: 50%;
-            display: inline-block;
-            animation: blink 1.4s infinite both;
-        }
+{% block header %}
+<h2 class="text-xl font-bold">AI PPT Generator</h2>
+{% endblock %}
 
-        .dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
+{% block extra_head %}
+<style>
+    .dot {
+        width: 6px;
+        height: 6px;
+        background: #14b8a6;
+        border-radius: 50%;
+        display: inline-block;
+        animation: blink 1.4s infinite both;
+    }
 
-        .dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
 
-        @keyframes blink {
-            0% {
-                opacity: .2;
-            }
+    @keyframes blink {
+        0% { opacity: .2; }
+        20% { opacity: 1; }
+        100% { opacity: .2; }
+    }
 
-            20% {
-                opacity: 1;
-            }
+    .generating-text {
+        animation: fadeText 1.4s infinite linear;
+    }
 
-            100% {
-                opacity: .2;
-            }
-        }
+    @keyframes fadeText {
+        0%,100% { opacity: 0.4; }
+        50% { opacity: 1; }
+    }
 
-        .generating-text {
-            animation: fadeText 1.4s infinite linear;
-        }
+    #toast {
+        opacity: 0;
+        transform: translateY(-20px);
+        z-index: 9999;
+    }
 
-        @keyframes fadeText {
+    .toast-show {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
 
-            0%,
-            100% {
-                opacity: 0.4;
-            }
+    .toast-success {
+        background: #d1fae5;
+        border-left: 4px solid #10b981;
+        color: #065f46;
+    }
 
-            50% {
-                opacity: 1;
-            }
-        }
+    .toast-error {
+        background: #fee2e2;
+        border-left: 4px solid #dc2626;
+        color: #7f1d1d;
+    }
+</style>
+{% endblock %}
 
-        #toast {
-            opacity: 0;
-            transform: translateY(-20px);
-            z-index: 999999 !important;
-        }
+{% block content %}
+<div class="max-w-4xl mx-auto">
 
-        .toast-show {
-            opacity: 1 !important;
-            transform: translateY(0) !important;
-        }
+    <div class="bg-white rounded-xl p-6 md:p-8 shadow-soft border border-slate-100 space-y-6">
 
-        .toast-success {
-            background: #d1fae5;
-            border-left: 4px solid #10b981;
-            color: #065f46;
-        }
+        <div class="text-center">
+            <h1 class="text-2xl font-bold">Create Your Presentation</h1>
+            <p class="mt-2 text-text-secondary">
+                Fill in the details below to generate your PPT using AI.
+            </p>
+        </div>
 
-        .toast-error {
-            background: #fee2e2;
-            border-left: 4px solid #dc2626;
-            color: #7f1d1d;
-        }
-    </style>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#4913ec",
-                        "background-light": "#f6f6f8",
-                        "background-dark": "#151022",
-                        "text-light": "#1d2333",
-                        "text-light-secondary": "#5c6271",
-                        "teal-primary": "#14b8a6",
-                        "teal-primary-hover": "#0d9488",
-                    },
-                    fontFamily: {
-                        "display": ["Space Grotesk", "sans-serif"]
-                    },
-                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-                    boxShadow: {
-                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
-                    }
-                },
-            },
-        }
-    </script>
-</head>
+        <form id="pptForm" class="space-y-6">
 
-<body class="bg-background-light font-display text-text-light">
-    <div class="flex h-screen w-full flex-col">
-        <header
-            class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 bg-white px-4 sm:px-10 py-3 shadow-soft z-10">
-
-            <div class="flex items-center gap-4 text-text-light">
-                <div class="text-primary">
-                    <img src="{{ url_for('static', filename='static/logo-transparent-png.png') }}" alt="Mentora Logo"
-                        class="w-10 h-10 object-contain">
-                </div>
-
-                <h2 class="text-text-light text-lg font-bold leading-tight tracking-[-0.015em]">Mentora AI PPT
-                    Generator</h2>
+            <!-- Topic -->
+            <div>
+                <label class="block text-sm font-medium text-text-secondary mb-2">Topic</label>
+                <input id="topic"
+                       class="w-full rounded-lg border px-4 py-3 focus:border-primary focus:ring-primary"
+                       placeholder="e.g. The Future of Renewable Energy">
             </div>
 
+            <!-- Description -->
+            <div>
+                <label class="block text-sm font-medium text-text-secondary mb-2">Description</label>
+                <textarea id="description"
+                          rows="4"
+                          class="w-full rounded-lg border px-4 py-3 focus:border-primary focus:ring-primary"
+                          placeholder="Goals, audience, tone..."></textarea>
+            </div>
 
-            <div class="flex items-center gap-4">
-                <button
-                    class="flex items-center justify-center size-10 rounded-full hover:bg-gray-100 transition-colors">
-                    <span class="material-symbols-outlined text-text-light-secondary">more_vert</span>
+            <!-- Slides -->
+            <div>
+                <label class="block text-sm font-medium text-text-secondary mb-2">
+                    Number of Slides
+                </label>
+                <input id="slides"
+                       type="number"
+                       min="5"
+                       max="20"
+                       value="10"
+                       class="w-full rounded-lg border px-4 py-3 focus:border-primary focus:ring-primary">
+            </div>
+
+            <!-- Toast -->
+            <div id="toast"
+                 class="fixed top-20 right-6 px-4 py-3 rounded-lg text-sm shadow-lg transition-all duration-300">
+            </div>
+
+            <!-- Actions -->
+            <div class="flex flex-col sm:flex-row sm:justify-end gap-4 pt-4">
+
+                <button id="generateBtn"
+                        type="button"
+                        class="flex items-center justify-center gap-2
+                               bg-primary text-white px-6 py-3 rounded-lg font-semibold
+                               hover:bg-primary-hover transition">
+                    <span class="material-symbols-outlined">auto_awesome</span>
+                    <span id="generateText">Generate PPT</span>
+
+                    <span id="genDots" class="hidden flex gap-1 ml-1">
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </span>
                 </button>
+
+                <button id="downloadBtn"
+                        type="button"
+                        disabled
+                        class="flex items-center justify-center gap-2
+                               border px-6 py-3 rounded-lg text-text-secondary
+                               hover:bg-slate-50 transition">
+                    <span class="material-symbols-outlined">download</span>
+                    Download PPT
+                </button>
+
             </div>
-        </header>
-        <main class="flex-1 overflow-y-hidden px-2 py-2 flex items-center justify-center">
-            <div class="w-full max-w-4xl">
-                <div class="rounded-xl bg-white p-6 sm:p-8 shadow-soft border border-gray-100 space-y-6">
-                    <div class="text-center">
-                        <h1 class="text-2xl font-bold text-text-light">Create Your Presentation</h1>
-                        <p class="mt-2 text-text-light-secondary">Fill in the details below to generate your PPT with
-                            AI.</p>
-                    </div>
-                    <form id="pptForm" class="space-y-6">
 
-                        <!-- Topic -->
-                        <div>
-                            <label class="block text-sm font-medium text-text-light-secondary mb-2" for="topic">
-                                Topic
-                            </label>
-                            <input
-                                class="w-full rounded-lg border-gray-300 py-3 px-4 text-base focus:border-teal-primary focus:ring-teal-primary shadow-soft transition-all"
-                                id="topic" placeholder="e.g., The Future of Renewable Energy" type="text" />
-                        </div>
-
-                        <!-- Description -->
-                        <div>
-                            <label class="block text-sm font-medium text-text-light-secondary mb-2" for="description">
-                                Description
-                            </label>
-                            <textarea
-                                class="w-full rounded-lg border-gray-300 py-3 px-4 text-base focus:border-teal-primary focus:ring-teal-primary shadow-soft transition-all"
-                                id="description" placeholder="Brief outline of goals, audience, tone..."
-                                rows="4"></textarea>
-                        </div>
-
-                        <!-- Number of slides -->
-                        <div>
-                            <label class="block text-sm font-medium text-text-light-secondary mb-2" for="slides">
-                                Number of Slides
-                            </label>
-                            <input
-                                class="w-full rounded-lg border-gray-300 py-3 px-4 text-base focus:border-teal-primary focus:ring-teal-primary shadow-soft transition-all"
-                                id="slides" max="20" min="5" placeholder="Enter a number between 5 and 20" value="10"
-                                type="number" />
-                        </div>
-
-                        <!-- Validation Error Box -->
-                        <!-- Toast Notification -->
-                        <div id="toast" class="fixed top-20 right-6 px-4 py-3 rounded-lg text-sm shadow-lg
-            opacity-0 transform -translate-y-4 transition-all duration-300
-            z-50"></div>
-
-                        <div class="flex flex-col sm:flex-row sm:justify-end sm:gap-4 pt-4">
-
-                            <!-- Generate Button -->
-                            <button id="generateBtn"
-                                class="flex items-center justify-center gap-2 rounded-lg bg-teal-primary px-6 py-3 text-base font-semibold text-white shadow-soft transition-colors hover:bg-teal-primary-hover w-full sm:w-auto"
-                                type="button">
-                                <span class="material-symbols-outlined">auto_awesome</span>
-                                <span id="generateText" class="generating-text">Generate PPT</span>
-
-                                <!-- Animated dots -->
-                                <span id="genDots" class="hidden flex gap-1 ml-1 pointer-events-none">
-                                    <span class="dot"></span>
-                                    <span class="dot"></span>
-                                    <span class="dot"></span>
-                                </span>
-                            </button>
-
-                            <!-- Download Button -->
-                            <button id="downloadBtn"
-                                class="flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-3 text-base font-semibold text-text-light-secondary shadow-soft transition-colors hover:bg-gray-50 w-full sm:w-auto"
-                                type="button" disabled>
-                                <span class="material-symbols-outlined">download</span>
-                                <span>Download PPT</span>
-                            </button>
-                        </div>
-                    </form>
-
-                </div>
-            </div>
-        </main>
+        </form>
     </div>
+</div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
+<script>
+document.addEventListener("DOMContentLoaded", () => {
 
-            // --- ELEMENTS ---
-            const generateBtn = document.getElementById("generateBtn");
-            const generateText = document.getElementById("generateText");
-            const genDots = document.getElementById("genDots");
-            const downloadBtn = document.getElementById("downloadBtn");
+    const generateBtn = document.getElementById("generateBtn");
+    const generateText = document.getElementById("generateText");
+    const genDots = document.getElementById("genDots");
+    const downloadBtn = document.getElementById("downloadBtn");
 
-            const topic = document.getElementById("topic");
-            const desc = document.getElementById("description");
-            const slides = document.getElementById("slides");
+    const topic = document.getElementById("topic");
+    const desc = document.getElementById("description");
+    const slides = document.getElementById("slides");
+    const toast = document.getElementById("toast");
 
-            const toast = document.getElementById("toast");
+    let generatedFile = null;
 
-            let generatedFile = null;
+    function showToast(msg, type="success") {
+        toast.className = "fixed top-20 right-6 px-4 py-3 rounded-lg text-sm shadow-lg transition-all duration-300";
+        toast.textContent = msg;
+        toast.classList.add(type === "success" ? "toast-success" : "toast-error");
+        requestAnimationFrame(() => toast.classList.add("toast-show"));
+        setTimeout(() => toast.classList.remove("toast-show"), 2500);
+    }
 
-            // -----------------------------------
-            // 🔹 RESET BLINKING ON PAGE LOAD
-            // -----------------------------------
-            generateText.classList.remove("generating-text");
+    function startGenerating() {
+        generateBtn.disabled = true;
+        generateText.textContent = "Generating";
+        generateText.classList.add("generating-text");
+        genDots.classList.remove("hidden");
+    }
 
-            // -----------------------------------
-            // 🔹 VALIDATION
-            // -----------------------------------
-            function validateForm() {
-                if (!topic.value.trim()) return "Topic is required.";
-                if (!desc.value.trim()) return "Description is required.";
-                if (!slides.value || slides.value < 5 || slides.value > 20)
-                    return "Slides must be between 5 and 20.";
-                return null;
-            }
+    function stopGenerating() {
+        generateBtn.disabled = false;
+        generateText.textContent = "Generate PPT";
+        generateText.classList.remove("generating-text");
+        genDots.classList.add("hidden");
+    }
 
-            // -----------------------------------
-            // 🔹 BUTTON STATES
-            // -----------------------------------
-            function startGenerating() {
-                generateBtn.disabled = true;
-                downloadBtn.disabled = true;
+    generateBtn.onclick = async () => {
+        if (!topic.value || !desc.value || slides.value < 5 || slides.value > 20) {
+            showToast("Please fill all fields correctly.", "error");
+            return;
+        }
 
-                generateText.textContent = "Generating";
-                generateText.classList.add("generating-text");
-                genDots.classList.remove("hidden");
-            }
+        startGenerating();
 
-            function stopGenerating() {
-                generateBtn.disabled = false;
-
-                generateText.textContent = "Generate PPT";
-                generateText.classList.remove("generating-text");
-                genDots.classList.add("hidden");
-            }
-
-            // -----------------------------------
-            // 🔹 TOAST NOTIFICATION
-            // -----------------------------------
-            function showToast(message, type = "success") {
-                const toast = document.getElementById("toast");
-
-                // Reset state fully
-                toast.className = "fixed top-20 right-6 px-4 py-3 rounded-lg text-sm shadow-lg transition-all duration-300 z-50";
-                toast.textContent = message;
-
-                // Add type
-                if (type === "success") toast.classList.add("toast-success");
-                else toast.classList.add("toast-error");
-
-                // Show
-                requestAnimationFrame(() => {
-                    toast.classList.add("toast-show");
-                });
-
-                // Hide
-                setTimeout(() => {
-                    toast.classList.remove("toast-show");
-                }, 2500);
-            }
-
-            // -----------------------------------
-            // 🔹 GENERATE PPT HANDLER
-            // -----------------------------------
-            generateBtn.addEventListener("click", async () => {
-
-                const validation = validateForm();
-                if (validation) {
-                    showToast(validation, "error");
-                    return;
-                }
-
-                startGenerating();
-
-                const payload = {
-                    topic: topic.value.trim(),
-                    description: desc.value.trim(),
+        try {
+            const res = await fetch("/ppt/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    topic: topic.value,
+                    description: desc.value,
                     slides: parseInt(slides.value)
-                };
-
-                try {
-                    const res = await fetch("/ppt/generate", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!res.ok) {
-                        const errText = await res.text();
-                        showToast("Error: " + errText, "error");
-                        stopGenerating();
-                        return;
-                    }
-
-
-                    const blob = await res.blob();
-                    generatedFile = window.URL.createObjectURL(blob);
-
-                    downloadBtn.disabled = false;
-
-                    showToast("PPT generated successfully! Click Download.", "success");
-
-                } catch (err) {
-                    showToast("Failed to generate PPT. Try again.", "error");
-                }
-
-                stopGenerating();
+                })
             });
 
-            // -----------------------------------
-            // 🔹 DOWNLOAD PPT
-            // -----------------------------------
-            downloadBtn.addEventListener("click", () => {
-                if (!generatedFile) return;
+            const blob = await res.blob();
+            generatedFile = URL.createObjectURL(blob);
+            downloadBtn.disabled = false;
+            showToast("PPT generated successfully!");
 
-                const link = document.createElement("a");
-                link.href = generatedFile;
-                link.download = `${topic.value.trim().replace(/ /g, "_")}.pptx`;
-                link.click();
+        } catch {
+            showToast("Failed to generate PPT.", "error");
+        }
 
-                generatedFile = null;
-                downloadBtn.disabled = true;
-            });
+        stopGenerating();
+    };
 
-        });
-    </script>
+    downloadBtn.onclick = () => {
+        if (!generatedFile) return;
+        const a = document.createElement("a");
+        a.href = generatedFile;
+        a.download = topic.value.replace(/ /g, "_") + ".pptx";
+        a.click();
+        generatedFile = null;
+        downloadBtn.disabled = true;
+    };
 
-
-</body>
-
-</html>
+});
+</script>
+{% endblock %}

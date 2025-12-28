@@ -729,19 +729,14 @@
         currentStep--;
         updateUI();
     });
-    /* ===============================
-   STEP 3: Terms Checkbox Control
-   =============================== */
 
     const agreeTermsCheckbox = document.getElementById("agree-terms");
     const finalSubmitBtn = document.getElementById("final-submit");
 
-    /* Enable / Disable submit ONLY based on checkbox */
     agreeTermsCheckbox.addEventListener("change", () => {
         finalSubmitBtn.disabled = !agreeTermsCheckbox.checked;
     });
 
-    /* Reset checkbox + button every time Step 3 is shown */
     function resetStep3Consent() {
         if (agreeTermsCheckbox && finalSubmitBtn) {
             agreeTermsCheckbox.checked = false;
