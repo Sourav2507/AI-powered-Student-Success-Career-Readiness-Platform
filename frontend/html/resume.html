@@ -17,6 +17,28 @@ Mentora · Resume Analyzer
         pointer-events: none;
     }
 
+    .view-hidden-left,
+    .view-hidden-right {
+        position: absolute;
+        height: 0;
+        overflow: hidden;
+    }
+
+    .tab-active {
+        background: white;
+        color: #14b8a6;
+        /* teal */
+        font-weight: 600;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    }
+
+    .tab-inactive {
+        background: transparent;
+        color: #64748b;
+        /* gray */
+        font-weight: 500;
+    }
+
     .view-hidden-right {
         opacity: 0;
         transform: translateX(30px);
@@ -32,98 +54,208 @@ Mentora · Resume Analyzer
     .toggle-btn {
         transition: all 0.25s ease;
     }
+
+    .skill-beginner {
+        @apply bg-green-50 text-green-700 border-green-300;
+    }
+
+    .skill-intermediate {
+        @apply bg-yellow-50 text-yellow-700 border-yellow-300;
+    }
+
+    .skill-advanced {
+        @apply bg-red-50 text-red-700 border-red-300;
+    }
+
+    .tab-active {
+        background: white;
+        color: #14b8a6;
+        /* teal */
+        font-weight: 600;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    }
+
+    .tab-inactive {
+        background: transparent;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    .dots::after {
+        content: "";
+        display: inline-block;
+        width: 1em;
+        animation: dots 1.4s infinite steps(4);
+    }
+
+    @keyframes dots {
+        0% {
+            content: "";
+        }
+
+        25% {
+            content: ".";
+        }
+
+        50% {
+            content: "..";
+        }
+
+        75% {
+            content: "...";
+        }
+    }
 </style>
 {% endblock %}
 
 {% block header %}
 <h2 class="text-2xl font-bold">
-    Resume Analyzer & Job Match
+    Resume Analyzer
 </h2>
 {% endblock %}
 
 {% block content %}
 
 <!-- PAGE TOGGLE -->
-<section class="bg-white border rounded-xl px-6 py-4 mb-6">
-    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-        <div class="bg-gray-100 p-1.5 rounded-xl flex gap-1 shadow-inner">
-            <button id="btnResume"
-                class="toggle-btn px-5 py-2 rounded-lg bg-white text-primary font-semibold shadow-sm flex items-center gap-2">
+<section id="toggleMenu" class="hidden bg-white border rounded-xl px-6 py-4 mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4 w-full">
+
+        <!-- LEFT: TOGGLE BUTTONS -->
+        <div class="bg-gray-100 p-2 rounded-2xl flex gap-2 shadow-inner">
+            <button id="btnResume" class="toggle-btn tab-active flex items-center gap-2
+        px-7 py-3 rounded-xl">
                 <span class="material-symbols-outlined text-sm">description</span>
                 Resume Insights
             </button>
 
-            <button id="btnJob"
-                class="toggle-btn px-5 py-2 rounded-lg text-text-secondary font-medium hover:text-text-primary flex items-center gap-2">
+            <button id="btnJob" class="toggle-btn tab-inactive flex items-center gap-2
+        px-7 py-3 rounded-xl">
                 <span class="material-symbols-outlined text-sm">compare_arrows</span>
-                Job Match
+                Job Matches
             </button>
         </div>
+
+        <!-- RIGHT: RELOAD BUTTON -->
+        <button id="reloadBtn"
+            class="hidden bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition">
+            Upload Another Resume
+        </button>
+
     </div>
 </section>
 
-<div class="relative min-h-[800px]">
 
-    <!-- ================= RESUME INSIGHTS ================= -->
-    <section id="resumeView" class="view view-active space-y-8 absolute inset-0">
+<div class="relative min-h-[400px]">
 
-        <!-- UPLOAD -->
-        <div class="bg-white p-6 rounded-xl shadow border flex justify-between items-center gap-4">
-            <div class="flex items-center gap-4">
+    <section id="resumeView" class="view view-active space-y-8">
+
+        <!-- UPLOAD CARD -->
+        <div id="uploadCard" class="bg-white p-6 rounded-xl shadow border transition-all duration-300">
+
+            <!-- NORMAL STATE -->
+            <div id="uploadState" class="flex justify-between items-center gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-lg bg-primary-light flex items-center justify-center text-primary">
+                        <span class="material-symbols-outlined">description</span>
+                    </div>
+                    <div>
+                        <p class="font-semibold">Upload your resume</p>
+                        <p class="text-sm text-text-secondary">PDF or DOCX · Max 2MB</p>
+                    </div>
+                </div>
+
+                <label id="uploadLabel"
+                    class="cursor-pointer bg-primary text-white px-5 py-2.5 rounded-lg font-semibold">
+                    Upload Resume
+                    <input id="resumeInput" type="file" accept=".pdf,.doc,.docx" hidden />
+                </label>
+            </div>
+
+            <!-- PROCESSING STATE -->
+            <div id="processingState" class="hidden flex items-center gap-4">
                 <div class="w-12 h-12 rounded-lg bg-primary-light flex items-center justify-center text-primary">
-                    <span class="material-symbols-outlined">description</span>
+                    <span class="material-symbols-outlined animate-spin">sync</span>
                 </div>
                 <div>
-                    <p class="font-semibold">Upload your resume</p>
-                    <p class="text-sm text-text-secondary">PDF or DOCX · Max 2MB</p>
+                    <p class="font-semibold">Analyzing your resume</p>
+                    <p class="text-sm text-text-secondary">
+                        Extracting skills & insights<span class="dots"></span>
+                    </p>
                 </div>
             </div>
-            <label class="cursor-pointer bg-primary text-white px-5 py-2.5 rounded-lg font-semibold">
-                Upload Resume
-                <input type="file" accept=".pdf,.doc,.docx" hidden />
-            </label>
+
         </div>
 
-        <!-- SUMMARY -->
-        <div class="grid md:grid-cols-3 gap-6">
+
+        <!-- LOADER -->
+        <div id="loader" class="hidden text-center text-sm text-text-secondary">
+            Analyzing resume, please wait...
+        </div>
+
+        <!-- SUMMARY CARDS -->
+        <div id="summaryCards" class="hidden grid md:grid-cols-3 gap-6">
             <div class="bg-white p-6 rounded-xl border shadow">
                 <h4 class="text-sm text-text-secondary uppercase font-semibold">Resume Score</h4>
-                <p class="text-3xl font-bold mt-2 text-primary">85%</p>
+                <p id="atsScore" class="text-3xl font-bold mt-2 text-primary">–</p>
             </div>
 
             <div class="bg-white p-6 rounded-xl border shadow">
                 <h4 class="text-sm text-text-secondary uppercase font-semibold">Experience Level</h4>
-                <p class="text-xl font-bold mt-2">Mid–Senior</p>
+                <p id="experienceLevel" class="text-xl font-bold mt-2">–</p>
             </div>
 
             <div class="bg-white p-6 rounded-xl border shadow">
                 <h4 class="text-sm text-text-secondary uppercase font-semibold">Primary Domain</h4>
-                <p class="text-xl font-bold mt-2">Product Design</p>
+                <p id="domain" class="text-xl font-bold mt-2">–</p>
+            </div>
+        </div>
+
+        <!-- SUMMARY TEXT -->
+        <div id="summaryBox" class="my-6 hidden bg-white p-6 rounded-xl border shadow">
+            <h4 class="font-semibold mb-2">Resume Summary</h4>
+            <p id="summaryText" class="text-text-secondary leading-relaxed"></p>
+        </div>
+
+        <!-- SKILLS -->
+        <div id="skillsBox" class="hidden bg-white p-6 rounded-xl border shadow">
+            <h4 class="font-semibold mb-3">Skills & Proficiency</h4>
+            <div id="skillsContainer" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <!-- JOB ROLES -->
+        <div id="rolesBox" class=" my-6 hidden bg-white p-6 rounded-xl border shadow">
+            <h4 class="font-semibold mb-3">Eligible Job Roles</h4>
+            <div id="rolesContainer" class="flex flex-wrap gap-2"></div>
+        </div>
+
+
+    </section>
+
+    <!-- ================= JOB MATCH ================= -->
+
+
+    <section id="jobView" class="view view-hidden-right space-y-8 absolute inset-0">
+
+
+        <div class="bg-white p-6 rounded-xl border shadow">
+            <h3 class="text-lg font-semibold mb-4">
+                Active Job Openings Based on Your Resume
+            </h3>
+            <div id="jobsLoader" class="hidden text-center text-sm text-text-secondary py-6">
+                Fetching relevant job openings for you...
+            </div>
+            <!-- JOBS CONTAINER -->
+            <div id="jobsContainer" class="space-y-4"></div>
+
+            <!-- EMPTY STATE -->
+            <div id="noJobsState" class="hidden text-center text-text-secondary py-10">
+                No active job openings available at the moment.
             </div>
         </div>
 
     </section>
 
-    <!-- ================= JOB MATCH ================= -->
-    <section id="jobView" class="view view-hidden-right space-y-8 absolute inset-0">
-
-        <div class="bg-white p-6 rounded-xl shadow border space-y-4">
-            <input class="w-full rounded-lg border px-4 py-3" placeholder="Job Role">
-            <input class="w-full rounded-lg border px-4 py-3" placeholder="Company">
-            <textarea class="w-full rounded-lg border px-4 py-3 h-40 resize-none"
-                placeholder="Paste job description here..."></textarea>
-
-            <button id="analyzeBtn" class="w-full bg-primary text-white py-3 rounded-lg font-bold">
-                Analyze Match
-            </button>
-        </div>
-
-        <div id="jobResults" class="hidden bg-white p-6 rounded-xl shadow border">
-            <div class="text-4xl font-bold text-primary">78%</div>
-            <p class="text-text-secondary mt-1">Strong Match</p>
-        </div>
-
-    </section>
 
 </div>
 
@@ -131,23 +263,218 @@ Mentora · Resume Analyzer
 
 {% block extra_scripts %}
 <script>
-    const btnResume = document.getElementById("btnResume");
-    const btnJob = document.getElementById("btnJob");
+    /* ================= GLOBAL STATE ================= */
+    let jobsCacheKey = null;
+
+    /* ================= ELEMENTS ================= */
+    const input = document.getElementById("resumeInput");
+    const loader = document.getElementById("loader");
+    const uploadCard = document.getElementById("uploadCard");
+    const toggleMenu = document.getElementById("toggleMenu");
+    const reloadBtn = document.getElementById("reloadBtn");
+
     const resumeView = document.getElementById("resumeView");
     const jobView = document.getElementById("jobView");
 
-    btnResume.onclick = () => {
-        resumeView.className = "view view-active space-y-8 absolute inset-0";
-        jobView.className = "view view-hidden-right space-y-8 absolute inset-0";
-    };
+    const btnResume = document.getElementById("btnResume");
+    const btnJob = document.getElementById("btnJob");
 
-    btnJob.onclick = () => {
-        jobView.className = "view view-active space-y-8 absolute inset-0";
-        resumeView.className = "view view-hidden-left space-y-8 absolute inset-0";
-    };
+    const jobsContainer = document.getElementById("jobsContainer");
+    const jobsLoader = document.getElementById("jobsLoader");
+    const noJobsState = document.getElementById("noJobsState");
 
-    document.getElementById("analyzeBtn")?.addEventListener("click", () => {
-        document.getElementById("jobResults").classList.remove("hidden");
+    /* ================= RESUME UPLOAD ================= */
+    input.addEventListener("change", async () => {
+        if (!input.files.length) return;
+
+        // switch upload card to processing state
+        document.getElementById("uploadState").classList.add("hidden");
+        document.getElementById("processingState").classList.remove("hidden");
+
+
+        const formData = new FormData();
+        formData.append("file", input.files[0]);
+
+        try {
+            const res = await fetch("/user/api/resume/analyze", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await res.json();
+            loader.classList.add("hidden");
+
+            if (!res.ok) {
+                alert(data.error || "Resume analysis failed");
+                return;
+            }
+
+            /* ===== UI SHOW ===== */
+
+            // disable upload input
+            input.disabled = true;
+
+            // disable upload button visually
+            // disable upload input (THIS actually matters)
+            input.disabled = true;
+
+            // visually disable the label button
+            const uploadLabel = uploadCard.querySelector("label");
+
+            // remove active styles
+            uploadLabel.classList.remove("bg-primary", "hover:opacity-90");
+            uploadLabel.classList.add("bg-gray-300", "cursor-not-allowed");
+
+            // update only the TEXT NODE, not innerHTML
+            uploadLabel.childNodes[0].nodeValue = "Resume Uploaded";
+
+            // fully block clicks
+            uploadLabel.style.pointerEvents = "none";
+
+
+            // OPTIONAL: hide upload card AFTER disabling (UX choice)
+            setTimeout(() => {
+                uploadCard.classList.add("hidden");
+            }, 500);
+
+            // show toggle & reload
+            toggleMenu.classList.remove("hidden");
+            reloadBtn.classList.remove("hidden");
+
+
+            document.getElementById("summaryCards").classList.remove("hidden");
+            document.getElementById("summaryBox").classList.remove("hidden");
+            document.getElementById("skillsBox").classList.remove("hidden");
+            document.getElementById("rolesBox").classList.remove("hidden");
+
+            document.getElementById("atsScore").innerText = data.ats_score + "%";
+            document.getElementById("experienceLevel").innerText = data.experience.experience_level;
+            document.getElementById("domain").innerText = data.domain;
+            document.getElementById("summaryText").innerText = data.summary || "";
+
+            /* ===== ROLES ===== */
+            const rolesContainer = document.getElementById("rolesContainer");
+            rolesContainer.innerHTML = "";
+            data.job_roles.forEach(role => {
+                const chip = document.createElement("span");
+                chip.className = "px-3 py-1 rounded-full text-sm border bg-blue-50 text-blue-700";
+                chip.innerText = role;
+                rolesContainer.appendChild(chip);
+            });
+
+            /* ===== SKILLS ===== */
+            const skillsContainer = document.getElementById("skillsContainer");
+            skillsContainer.innerHTML = "";
+
+            Object.entries(data.skill_levels).forEach(([skill, level]) => {
+                let color = "bg-gray-100 border-gray-300";
+                if (level === "Beginner") color = "bg-green-50 border-green-300";
+                if (level === "Intermediate") color = "bg-yellow-50 border-yellow-300";
+                if (level === "Advanced") color = "bg-red-50 border-red-300";
+
+                const chip = document.createElement("span");
+                chip.className = `px-3 py-1 rounded-full text-sm border ${color}`;
+                chip.innerText = skill;
+                skillsContainer.appendChild(chip);
+            });
+
+            /* ===== JOB FETCH ===== */
+            jobsCacheKey = data.jobs_cache_key;
+            jobsContainer.innerHTML = "";
+            noJobsState.classList.add("hidden");
+            jobsLoader.classList.remove("hidden");
+
+            pollJobStatus();
+
+        } catch (err) {
+            console.error(err);
+            alert("Something went wrong");
+        }
     });
+
+    /* ================= JOB POLLING ================= */
+    async function pollJobStatus() {
+        if (!jobsCacheKey) return;
+
+        const res = await fetch(`/user/api/jobs/status?cache_key=${jobsCacheKey}`);
+        const data = await res.json();
+
+        if (data.status === "ready") {
+            fetchJobResults();
+        } else {
+            setTimeout(pollJobStatus, 3000);
+        }
+    }
+
+    async function fetchJobResults() {
+        const res = await fetch(`/user/api/jobs/results?cache_key=${jobsCacheKey}`);
+        const data = await res.json();
+
+        jobsLoader.classList.add("hidden");
+
+        if (!data.ready || data.jobs.length === 0) {
+            noJobsState.classList.remove("hidden");
+            return;
+        }
+
+        renderJobs(data.jobs);
+    }
+
+    function renderJobs(jobs) {
+        jobsContainer.innerHTML = "";
+
+        jobs.forEach(job => {
+            const card = document.createElement("div");
+            card.className = "border rounded-xl p-5 flex justify-between gap-4";
+
+            card.innerHTML = `
+            <div>
+                <h4 class="font-semibold">${job.title}</h4>
+                <p class="text-sm text-text-secondary">
+                    ${job.company} · ${job.location}
+                </p>
+            </div>
+            <a href="${job.url}" target="_blank"
+               class="bg-primary text-white px-4 py-2 rounded-lg text-sm">
+                Apply
+            </a>
+        `;
+
+            jobsContainer.appendChild(card);
+        });
+    }
+
+    /* ================= VIEW TOGGLE ================= */
+    btnJob.addEventListener("click", () => {
+        // views
+        resumeView.className = "view view-hidden-left absolute inset-0";
+        jobView.className = "view view-active absolute inset-0";
+
+        // color swap only
+        btnJob.classList.add("tab-active");
+        btnJob.classList.remove("tab-inactive");
+
+        btnResume.classList.add("tab-inactive");
+        btnResume.classList.remove("tab-active");
+    });
+
+    btnResume.addEventListener("click", () => {
+        // views
+        resumeView.className = "view view-active absolute inset-0";
+        jobView.className = "view view-hidden-right absolute inset-0";
+
+        // color swap only
+        btnResume.classList.add("tab-active");
+        btnResume.classList.remove("tab-inactive");
+
+        btnJob.classList.add("tab-inactive");
+        btnJob.classList.remove("tab-active");
+    });
+
+
+
+    /* ================= RELOAD ================= */
+    reloadBtn.addEventListener("click", () => window.location.reload());
 </script>
+
 {% endblock %}

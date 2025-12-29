@@ -5,6 +5,22 @@ import os
 import requests
 import markdown
 import tempfile
+import os
+import tempfile
+import redis
+import hashlib
+from backend.app.utils.resume_parser import extract_text
+from backend.app.utils.skill_extractor import extract_skills
+from backend.app.utils.experience_parser import extract_experience
+from backend.app.utils.academic_parser import extract_academics
+from backend.app.scoring.ats_scorer import calculate_ats_score
+from backend.app.llm.resume_summary import generate_resume_summary
+from backend.app.llm.skill_level_inferencer import infer_skill_levels
+from backend.app.ml_inference.resume_domain import predict_domain
+from backend.app.ml_inference.resume_job_role import predict_job_roles
+from backend.app.async_celery.tasks import fetch_and_cache_jobs, job_cache_key
+
+
 from pptx import Presentation
 from pptx.util import Pt, Inches
 
@@ -253,3 +269,135 @@ def submit_exam():
     active_menu="learning-tools",
     active_submenu="exam"
     )
+
+@user.route("/api/resume/analyze", methods=["POST"])
+def analyze_resume():
+    if "file" not in request.files:
+        return jsonify({"error": "Resume file is required"}), 400
+
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"error": "No file selected"}), 400
+
+    _, ext = os.path.splitext(file.filename)
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
+        file.save(tmp.name)
+        temp_path = tmp.name
+
+    try:
+        # -------- 1. Resume parsing --------
+        resume_text = extract_text(temp_path)
+
+        skills = extract_skills(resume_text)
+        experience = extract_experience(resume_text)
+        academics = extract_academics(resume_text)
+
+        domain = predict_domain(resume_text)
+        job_roles = predict_job_roles(resume_text)
+
+        ats_result = calculate_ats_score(
+            skills=skills,
+            experience=experience,
+            academics=academics,
+            domain=domain
+        )
+
+        response = {
+            "domain": domain,
+            "job_roles": job_roles,
+            "skills": skills,
+            "experience": experience,
+            "academics": academics,
+            "ats_score": ats_result["ats_score"],
+            "score_breakdown": ats_result["breakdown"]
+        }
+
+        # -------- 2. LLM enrichment (SAFE) --------
+        try:
+            llm_context = {
+                "domain": domain,
+                "job_roles": job_roles,
+                "skills": skills,
+                "experience": experience,
+                "academics": academics,
+                "ats_score": ats_result["ats_score"]
+            }
+            response["summary"] = generate_resume_summary(llm_context)
+            response["skill_levels"] = infer_skill_levels(resume_text, skills)
+        except Exception:
+            response["summary"] = None
+            response["skill_levels"] = {}
+
+        # -------- 3. Background job fetching --------
+        cache_key = job_cache_key(job_roles, "india")
+
+        # Prevent duplicate Celery jobs
+        status = redis_client.get(cache_key + ":status")
+        if not status:
+            redis_client.setex(
+                cache_key + ":status",
+                JOB_CACHE_TTL,
+                "pending"
+            )
+            fetch_and_cache_jobs.delay(job_roles, "india")
+
+        response["jobs_cache_key"] = cache_key
+
+        return jsonify(response), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+
+redis_client = redis.Redis(
+    host="localhost",
+    port=6379,
+    db=2,
+    decode_responses=True
+)
+
+JOB_CACHE_TTL = 60 * 15  # 15 minutes
+
+
+def job_cache_key(roles, location="india"):
+    raw = f"{','.join(sorted(roles))}:{location}"
+    return "jobs:" + hashlib.md5(raw.encode()).hexdigest()
+
+
+@user.route("/api/jobs/status", methods=["GET"])
+def jobs_status():
+    cache_key = request.args.get("cache_key")
+    if not cache_key:
+        return jsonify({"error": "cache_key required"}), 400
+
+    status = redis_client.get(cache_key + ":status")
+
+    return jsonify({
+        "status": status if status else "not_started"
+    })
+
+@user.route("/api/jobs/results", methods=["GET"])
+def jobs_results():
+    cache_key = request.args.get("cache_key")
+    if not cache_key:
+        return jsonify({"error": "cache_key required"}), 400
+
+    cached = redis_client.get(cache_key)
+    if not cached:
+        return jsonify({
+            "ready": False,
+            "jobs": []
+        })
+
+    # Refresh TTL on read (optional but good UX)
+    redis_client.expire(cache_key, JOB_CACHE_TTL)
+    redis_client.expire(cache_key + ":status", JOB_CACHE_TTL)
+
+    return jsonify({
+        "ready": True,
+        "jobs": json.loads(cached)
+    })

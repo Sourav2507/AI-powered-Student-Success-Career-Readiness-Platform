@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify,render_template
 from datetime import datetime, timedelta
+from backend.app.scoring.ats_scorer import calculate_ats_score
 from backend.app.model.models import User,EmailOTP,PhoneOTP
 from backend.app.async_celery.tasks import demo_async_task
 from backend.app.utils.otp import generate_otp
