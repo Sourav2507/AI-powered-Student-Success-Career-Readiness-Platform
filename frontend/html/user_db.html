@@ -20,51 +20,202 @@ Mentora · Dashboard
 
 <!-- SUMMARY CARDS -->
 <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
-    <!-- Predicted CGPA -->
-    <div class="bg-background-card p-5 rounded-xl border border-slate-100 shadow-soft">
-        <div class="flex justify-between mb-2">
-            <span class="text-sm text-text-secondary">Predicted CGPA</span>
-            <span class="text-xs text-success bg-success-bg px-2 py-0.5 rounded-full">+0.2</span>
+    <div
+        class="bg-background-card p-5 rounded-xl border border-slate-100 shadow-soft hover:shadow-medium transition-shadow group">
+        <div class="flex justify-between items-start mb-2">
+            <div class="flex items-center gap-2 text-text-secondary text-sm font-medium">
+                Predicted CGPA
+                <span class="material-symbols-outlined text-xs cursor-help text-slate-400"
+                    title="Based on current semester performance">info</span>
+            </div>
+            <span class="flex items-center text-xs font-medium text-success bg-success-bg px-2 py-0.5 rounded-full">
+                <span class="material-symbols-outlined text-sm mr-0.5">trending_up</span> +0.2
+            </span>
         </div>
-        <div class="text-3xl font-bold">3.85</div>
+        <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-bold text-text-primary">3.85</span>
+            <span class="text-sm text-text-secondary">/ 4.00</span>
+        </div>
+        <div class="mt-4 w-full bg-slate-100 rounded-full h-1.5">
+            <div class="bg-primary h-1.5 rounded-full" style="width: 96%"></div>
+        </div>
     </div>
-
-    <!-- Academic Risk -->
-    <div class="bg-background-card p-5 rounded-xl border border-slate-100 shadow-soft">
-        <div class="text-sm text-text-secondary">Academic Risk</div>
-        <div class="text-lg font-bold text-success mt-2">Low Risk</div>
+    <div
+        class="bg-background-card p-5 rounded-xl border border-slate-100 shadow-soft hover:shadow-medium transition-shadow">
+        <div class="flex justify-between items-start mb-2">
+            <div class="text-text-secondary text-sm font-medium">Academic Risk</div>
+            <button class="text-primary text-xs font-semibold hover:underline">View Subjects</button>
+        </div>
+        <div class="flex items-center gap-3 mt-1">
+            <div class="w-10 h-10 rounded-full bg-success-bg flex items-center justify-center text-success">
+                <span class="material-symbols-outlined">check_circle</span>
+            </div>
+            <div>
+                <div class="text-lg font-bold text-text-primary">Low Risk</div>
+                <div class="text-xs text-text-secondary">Keep up the momentum!</div>
+            </div>
+        </div>
     </div>
-
-    <!-- Career Readiness -->
-    <div class="bg-background-card p-5 rounded-xl border border-slate-100 shadow-soft">
-        <div class="text-sm text-text-secondary">Career Readiness</div>
-        <div class="text-3xl font-bold mt-2">72%</div>
+    <div
+        class="bg-background-card p-5 rounded-xl border border-slate-100 shadow-soft hover:shadow-medium transition-shadow">
+        <div class="flex justify-between items-start mb-2">
+            <div class="text-text-secondary text-sm font-medium">Career Readiness</div>
+            <button class="text-primary text-xs font-semibold hover:underline">Improve</button>
+        </div>
+        <div class="flex items-end justify-between">
+            <div>
+                <span class="text-3xl font-bold text-text-primary">72%</span>
+            </div>
+            <span class="text-xs font-medium text-warning bg-warning-bg px-2 py-0.5 rounded-full mb-1">In
+                Progress</span>
+        </div>
+        <div class="mt-4 w-full bg-slate-100 rounded-full h-1.5">
+            <div class="bg-warning h-1.5 rounded-full" style="width: 72%"></div>
+        </div>
     </div>
-
-    <!-- Mental Wellness -->
-    <div class="bg-background-card p-5 rounded-xl border border-slate-100 shadow-soft">
-        <div class="text-sm text-text-secondary">Mental Wellness</div>
-        <div class="text-lg font-bold mt-2">Good</div>
+    <div
+        class="bg-background-card p-5 rounded-xl border border-slate-100 shadow-soft hover:shadow-medium transition-shadow">
+        <div class="flex justify-between items-start mb-2">
+            <div class="text-text-secondary text-sm font-medium">Mental Wellness</div>
+            <button class="text-primary text-xs font-semibold hover:underline">Check In</button>
+        </div>
+        <div class="flex items-center gap-3 mt-1">
+            <div class="w-10 h-10 rounded-full bg-info-bg flex items-center justify-center text-info">
+                <span class="material-symbols-outlined">sentiment_satisfied</span>
+            </div>
+            <div>
+                <div class="text-lg font-bold text-text-primary">Good</div>
+                <div class="text-xs text-text-secondary">Last check-in: 2 days ago</div>
+            </div>
+        </div>
     </div>
 </section>
-
 <!-- CHARTS -->
-<section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
-    <div class="lg:col-span-2 bg-background-card p-6 rounded-xl border shadow-soft">
-        <h3 class="font-bold mb-4">CGPA Prediction Trend</h3>
-        <div class="h-64">
+<section class="grid grid-cols-1 lg:grid-cols-3 mt-6 gap-6">
+    <div class="lg:col-span-2 bg-background-card p-6 rounded-xl border border-slate-100 shadow-soft">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="font-bold text-text-primary">CGPA Prediction Trend</h3>
+            <select
+                class="text-xs border-slate-200 rounded-md text-text-secondary focus:ring-primary focus:border-primary">
+                <option>Last 6 Semesters</option>
+                <option>Last 3 Semesters</option>
+            </select>
+        </div>
+        <div class="relative w-full h-64">
             <canvas id="cgpaChart"></canvas>
         </div>
     </div>
-
-    <div class="bg-background-card p-6 rounded-xl border shadow-soft">
-        <h3 class="font-bold mb-4">Skill Readiness</h3>
-        <div class="h-64">
+    <div class="lg:col-span-1 bg-background-card p-6 rounded-xl border border-slate-100 shadow-soft">
+        <h3 class="font-bold text-text-primary mb-6">Skill Readiness</h3>
+        <div class="relative w-full h-64 flex items-center justify-center">
             <canvas id="skillsChart"></canvas>
         </div>
     </div>
 </section>
+<section class="grid grid-cols-1 lg:grid-cols-3 mt-6 gap-6">
+    <div class="lg:col-span-2 space-y-4">
+        <div class="flex items-center justify-between">
+            <h3 class="font-bold text-text-primary flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">auto_awesome</span>
+                Personalized AI Recommendations
+            </h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div
+                class="bg-background-card p-5 rounded-xl border border-slate-100 shadow-soft hover:shadow-medium transition-all group">
+                <div class="flex items-start gap-4">
+                    <div class="bg-primary-light p-2.5 rounded-lg text-primary shrink-0">
+                        <span class="material-symbols-outlined">code</span>
+                    </div>
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-text-primary text-sm">Advanced Data Structures</h4>
+                        <p class="text-xs text-text-secondary leading-relaxed">
+                            Mentora AI noticed you struggled slightly with trees in your last quiz. This
+                            module will boost your technical readiness score by 5%.
+                        </p>
+                        <button class="text-xs font-semibold text-primary group-hover:underline flex items-center mt-2">
+                            View Details <span class="material-symbols-outlined text-[16px] ml-1">arrow_forward</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="bg-background-card p-5 rounded-xl border border-slate-100 shadow-soft hover:shadow-medium transition-all group">
+                <div class="flex items-start gap-4">
+                    <div class="bg-info-bg p-2.5 rounded-lg text-info shrink-0">
+                        <span class="material-symbols-outlined">record_voice_over</span>
+                    </div>
+                    <div class="space-y-2">
+                        <h4 class="font-semibold text-text-primary text-sm">Mock Interview: Amazon</h4>
+                        <p class="text-xs text-text-secondary leading-relaxed">
+                            Based on your target companies, practicing behavioral questions now will
+                            increase your confidence metric.
+                        </p>
+                        <button class="text-xs font-semibold text-info group-hover:underline flex items-center mt-2">
+                            Start Practice <span class="material-symbols-outlined text-[16px] ml-1">arrow_forward</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="lg:col-span-1">
+        <h3 class="font-bold text-text-primary mb-4">Quick Actions</h3>
+        <div class="bg-background-card p-4 rounded-xl border border-slate-100 shadow-soft space-y-3">
 
+            <!-- Upload Resume -->
+            <a href="/user/resume_analyzer" class="block">
+                <button
+                    class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors text-left group border border-transparent hover:border-slate-100">
+                    <div
+                        class="bg-purple-100 text-purple-600 p-2 rounded-lg group-hover:bg-purple-200 transition-colors">
+                        <span class="material-symbols-outlined">upload_file</span>
+                    </div>
+                    <span class="text-sm font-medium text-text-primary">Upload Resume</span>
+                </button>
+            </a>
+
+            <!-- Take Skill Quiz -->
+            <a href="/user/exam" class="block">
+                <button
+                    class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors text-left group border border-transparent hover:border-slate-100">
+                    <div
+                        class="bg-orange-100 text-orange-600 p-2 rounded-lg group-hover:bg-orange-200 transition-colors">
+                        <span class="material-symbols-outlined">quiz</span>
+                    </div>
+                    <span class="text-sm font-medium text-text-primary">Take Skill Quiz</span>
+                </button>
+            </a>
+
+            <!-- PPT Generator -->
+            <a href="/user/ppt_gen" class="block">
+                <button
+                    class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors text-left group border border-transparent hover:border-slate-100">
+                    <div class="bg-blue-100 text-blue-600 p-2 rounded-lg group-hover:bg-blue-200 transition-colors">
+                        <span class="material-symbols-outlined">view_carousel</span>
+                    </div>
+                    <span class="text-sm font-medium text-text-primary">PPT Generator</span>
+                </button>
+            </a>
+
+            <!-- Chatbot -->
+            <div class="pt-2 mt-2 border-t border-slate-100">
+                <a href="/user/chatbot" class="block">
+                    <button
+                        class="w-full flex items-center justify-center gap-2 p-3 rounded-lg bg-primary text-white hover:bg-primary-hover transition-colors shadow-sm">
+                        <span class="material-symbols-outlined">smart_toy</span>
+                        <span class="text-sm font-bold">Chat with Mentora AI</span>
+                    </button>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+<footer class="text-center py-6 text-xs text-text-secondary border-t border-slate-100 mt-8">
+    © 2025 Mentora. AI-Powered Student Success Platform.
+</footer>
 {% endblock %}
 
 {% block extra_scripts %}
@@ -73,9 +224,9 @@ Mentora · Dashboard
     new Chart(document.getElementById('cgpaChart'), {
         type: 'line',
         data: {
-            labels: ['Sem 1','Sem 2','Sem 3','Sem 4','Sem 5','Sem 6'],
+            labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6'],
             datasets: [{
-                data: [3.4,3.5,3.65,3.72,3.8,3.85],
+                data: [3.4, 3.5, 3.65, 3.72, 3.8, 3.85],
                 borderColor: '#14b8a6',
                 fill: true,
                 backgroundColor: 'rgba(20,184,166,0.15)',
@@ -89,9 +240,9 @@ Mentora · Dashboard
     new Chart(document.getElementById('skillsChart'), {
         type: 'radar',
         data: {
-            labels: ['Tech','Comm','Problem Solving','Confidence','Leadership'],
+            labels: ['Tech', 'Comm', 'Problem Solving', 'Confidence', 'Leadership'],
             datasets: [{
-                data: [85,65,90,70,60],
+                data: [85, 65, 90, 70, 60],
                 backgroundColor: 'rgba(20,184,166,0.2)',
                 borderColor: '#14b8a6'
             }]

@@ -189,3 +189,78 @@ def recommend_courses_api():
         "input_course": course_name,
         "recommendations": recommendations.to_dict(orient="records")
     })
+
+
+
+rf_model = joblib.load(
+    os.path.join(MODEL_DIR, "stress_level_random_forest.pkl")
+)
+
+scaler = joblib.load(
+    os.path.join(MODEL_DIR, "stress_level_scaler.pkl")
+)
+
+# Stress level mapping
+stress_map = {
+    0: "Low",
+    1: "Medium",
+    2: "High"
+}
+
+@ml.route("/api/predict-stress", methods=["POST"])
+def predict_stress():
+    try:
+        data = request.get_json()
+
+        if not data:
+            return jsonify({"error": "No input data provided"}), 400
+
+        # Expected 20 features in correct order
+        features = [
+            data["anxiety_level"],
+            data["self_esteem"],
+            data["mental_health_history"],
+            data["depression"],
+            data["headache"],
+            data["blood_pressure"],
+            data["sleep_quality"],
+            data["breathing_problem"],
+            data["noise_level"],
+            data["living_conditions"],
+            data["basic_needs"],
+            data["academic_performance"],
+            data["study_load"],
+            data["teacher_student_relationship"],
+            data["future_career_concerns"],
+            data["social_support"],
+            data["peer_pressure"],
+            data["extracurricular_activities"],
+            data["bullying"],
+            data["confidence_level"]  # replace if different column
+        ]
+
+        # Convert to array
+        X = np.array(features).reshape(1, -1)
+
+        # Scale
+        X_scaled = scaler.transform(X)
+
+        # Predict
+        prediction = rf_model.predict(X_scaled)[0]
+        probabilities = rf_model.predict_proba(X_scaled)[0]
+
+        return jsonify({
+            "stress_level_numeric": int(prediction),
+            "stress_level": stress_map[prediction],
+            "confidence_scores": {
+                "Low": round(float(probabilities[0]), 3),
+                "Medium": round(float(probabilities[1]), 3),
+                "High": round(float(probabilities[2]), 3)
+            }
+        })
+
+    except KeyError as e:
+        return jsonify({"error": f"Missing field: {str(e)}"}), 400
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

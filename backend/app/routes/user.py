@@ -56,6 +56,11 @@ def dashboard():
     return render_template('user_db.html',
     active_menu="dashboard")
 
+@user.route('/stress_assessment', methods=['GET'])
+def stress_assessment():
+    return render_template('stress.html',
+    active_menu="dashboard")
+
 @user.route('/resume_analyzer', methods=['GET'])
 def resume_analyzer():
     return render_template('resume.html',
